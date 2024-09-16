@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+build-backend = 'setuptools.build_meta'
+requires = ['setuptools>=61.2']
 
 [project]
 name = "nodemodel"
@@ -10,7 +10,7 @@ authors = [
     { name = "Krzysztof Pankow", email = "kpankow@dinga.ai" }
 ]
 license = { text = "MIT" }
-requires-python = ">=3.11"
+requires-python = ">=3.8"
 readme = "README.md"
 keywords = ["graph", "model", "node", "function", "relationship"]
 dependencies = ["networkx >= 3.1"]
@@ -19,5 +19,5 @@ dependencies = ["networkx >= 3.1"]
 "Homepage" = "https://github.com/krzysztof-pankow/nodemodel"
 "Source" = "https://github.com/krzysztof-pankow/nodemodel"
 
-[tool.setuptools.packages.find]
-where = ["nodemodel"]
+[tool.setuptools]
+packages = ["nodemodel"]
