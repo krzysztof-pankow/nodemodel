@@ -4,7 +4,7 @@ requires = ['setuptools>=61.2']
 
 [project]
 name = "nodemodel"
-version = "0.1"
+version = "0.1.1"
 description = "Generates and processes a graph based on a dictionary of functions, using the function names and their argument names to define the relationships."
 authors = [
     { name = "Krzysztof Pankow", email = "kpankow@dinga.ai" }
