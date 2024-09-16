@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nodemodel"
+version = "0.1"
+description = "Generates and processes a graph based on a dictionary of functions, using the function names and their argument names to define the relationships."
+authors = [
+    { name = "Krzysztof Pankow", email = "kpankow@dinga.ai" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+readme = "README.md"
+keywords = ["graph", "model", "node", "function", "relationship"]
+homepage = "https://github.com/krzysztof-pankow/nodemodel"
+dependencies = ["networkx >= 3.1"]
+
+[project.urls]
+"Homepage" = "https://github.com/krzysztof-pankow/nodemodel"
+"Source" = "https://github.com/krzysztof-pankow/nodemodel"
+
+[tool.setuptools.packages.find]
+where = ["nodemodel"]
