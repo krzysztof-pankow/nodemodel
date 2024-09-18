@@ -12,6 +12,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
             edges.append((dep,node_name))
     g = nx.DiGraph()
     g.add_edges_from(edges)
+    g.add_nodes_from(list(nodes.keys()))
     return g
 
 def custom_tuple_concat(a, b):

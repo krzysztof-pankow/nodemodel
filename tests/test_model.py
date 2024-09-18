@@ -118,3 +118,11 @@ def test_model_6():
 
     m = Model({"a":a})
     assert m.compute({"x":1}) == {"x":1,"a":1}
+
+def test_model_with_isolated_node():
+    def a():
+        return 1
+
+    m = Model({"a":a})
+    assert list(m.graph.nodes()) == ['a']
+    assert m.compute({}) == {'a':1}
