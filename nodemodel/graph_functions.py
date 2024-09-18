@@ -22,18 +22,22 @@ def custom_tuple_concat(a, b):
         b = (b,)
     return a + b
 
-def get_cond_nodes(graph:nx.DiGraph,nodes_with_forced_nodes:Dict)->List:
-    ordered_nodes = list(nx.topological_sort(graph))
-    cond_nodes = [node for node in ordered_nodes if node in nodes_with_forced_nodes.keys()]
-    return cond_nodes
+def check_acyclicity(graph):
+    if nx.is_directed_acyclic_graph(graph):
+        pass
+    else:
+        cycles = nx.simple_cycles(graph)
+        smallest_cycle = min(cycles,key = len)
+        raise ValueError(f"A cycle was detected: {smallest_cycle}")  
 
 
 def model_graph(nodes_graph,nodes_with_forced_nodes):
     model_graph = nodes_graph.copy()
     #Sort forced nodes in nodes_with_forced_nodes -> Important to mutualize values like {"a":1,"b":2} and {"b":2,"a":1}
     nodes_with_forced_nodes = {k:dict(sorted(v.items())) for k,v in nodes_with_forced_nodes.items()}
-    #Get cond_nodes -> list of of all cond nodes
-    cond_nodes = get_cond_nodes(model_graph,nodes_with_forced_nodes)
+    #Get cond_nodes ordered with nodes_graph
+    ordered_nodes = list(nx.topological_sort(nodes_graph))
+    cond_nodes = [node for node in ordered_nodes if node in nodes_with_forced_nodes.keys()]
     #For each node with forced nodes, do the following:
     for cond_node in cond_nodes:
         #Get cond_node_ancestors_graph -> graph of all ancestors of cond_node  + cond_node

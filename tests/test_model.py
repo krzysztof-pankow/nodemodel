@@ -1,4 +1,5 @@
 from nodemodel.model import Model
+import pytest
 
 def test_model_with_forced_nodes_and_its_properties():
     def e(b):
@@ -126,3 +127,15 @@ def test_model_with_isolated_node():
     m = Model({"a":a})
     assert list(m.graph.nodes()) == ['a']
     assert m.compute({}) == {'a':1}
+
+def test_model_with_cycles_error():
+    def a(b):
+        return b
+
+    def b(a):
+        return a
+    
+    with pytest.raises(Exception) as value_exception:
+        m = Model({"a":a,"b":b})
+    assert (str(value_exception.value) == "A cycle was detected: ['a', 'b']" or
+            str(value_exception.value) == "A cycle was detected: ['b', 'a']")
