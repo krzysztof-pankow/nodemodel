@@ -24,7 +24,8 @@ class Model():
         self.model_nodes = {k:ModelNode(k,self.nodes,self.nodes_with_forced_nodes,self.graph) for k in self.call_order}
         self.auxiliary_nodes = list(set(self.graph.nodes()).difference(self.nodes_graph.nodes()))
 
-    def compute(self,input:Dict,keep_auxiliary_nodes:bool=False)->Dict:
+    def compute(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:
+        input.update(kwargs)
         for node_name in self.call_order:
             model_node = self.model_nodes[node_name]
             call_input = [input[k] for k in model_node.inputs]
@@ -32,6 +33,8 @@ class Model():
         if not keep_auxiliary_nodes:
             for auxiliary_node in self.auxiliary_nodes:
                 del input[auxiliary_node]
+        for k in kwargs.keys():
+            del input[k]
         return input
     
     def submodel(self,nodes_names:List[str]):

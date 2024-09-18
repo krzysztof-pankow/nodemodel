@@ -139,3 +139,12 @@ def test_model_with_cycles_error():
         m = Model({"a":a,"b":b})
     assert (str(value_exception.value) == "A cycle was detected: ['a', 'b']" or
             str(value_exception.value) == "A cycle was detected: ['b', 'a']")
+
+
+def test_compute_with_kwargs():
+    def a(x):
+        return x
+    
+    m = Model({"a":a})
+    assert m.compute({},x=1) == {"a":1}
+    
