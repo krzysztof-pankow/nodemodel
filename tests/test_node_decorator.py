@@ -1,7 +1,7 @@
 from nodemodel.utils import node
 from nodemodel.model import Model
 
-def test_node_decorator_1():
+def test_node_decorator_without_brackets():
     @node
     def test():
         '''test_doc'''
@@ -13,7 +13,7 @@ def test_node_decorator_1():
     assert hasattr(test,"node_tag")
     assert not hasattr(test,"forced_nodes")
 
-def test_node_decorator_2():
+def test_node_decorator_with_brackets():
     @node()
     def test():
         '''test_doc'''
@@ -25,7 +25,7 @@ def test_node_decorator_2():
     assert hasattr(test,"node_tag")
     assert not hasattr(test,"forced_nodes")
 
-def test_node_decorator_3():
+def test_node_decorator_with_tag_argument():
     @node(tag = "my_tag")
     def test():
         '''test_doc'''
@@ -38,7 +38,7 @@ def test_node_decorator_3():
     assert test.node_tag == "my_tag"
     assert not hasattr(test,"forced_nodes")
 
-def test_node_decorator_4():
+def test_node_decorator_with_tag_argument_and_forced_nodes():
     @node(tag = "my_tag",a = 5,b = "c")
     def test():
         '''test_doc'''
