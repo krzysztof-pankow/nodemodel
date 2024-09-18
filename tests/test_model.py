@@ -1,6 +1,7 @@
 from nodemodel.model import Model
+import pytest
 
-def test_model_1():
+def test_model_with_forced_nodes_and_its_properties():
     def e(b):
         return b*5
 
@@ -36,7 +37,7 @@ def test_model_1():
     assert m.compute(input,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, ('x', 2): 2, ('y', 3): 3, 'a': 1, ('a', 'x', 2): 2, 
                                 'b': 3, ('b', 'y', 3): 5, 'e': 15, 'c': 5}
 
-def test_model_2():
+def test_forced_nodes_with_different_values():
     def c(a):
         return a
     c.forced_nodes = {"x":7}
@@ -59,7 +60,7 @@ def test_model_2():
     assert set(m.auxiliary_nodes) == {('x', 5), ('a', 'x', 7), ('x', 7), ('a', 'x', 5)}
     assert m.compute(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 7}
 
-def test_model_3():
+def test_simple_mutualization_of_forced_nodes():
     def c(a):
         return a
     c.forced_nodes = {"x":5}
@@ -77,7 +78,7 @@ def test_model_3():
     assert set(m.auxiliary_nodes) == {('x', 5), ('a', 'x', 5)}
     assert m.compute(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 5}
 
-def test_model_4():
+def test_irrelevent_forced_nodes():
     def a(x):
         return x
     a.forced_nodes = {"z":5}
@@ -89,7 +90,7 @@ def test_model_4():
     assert set(m.auxiliary_nodes) == set()
     assert m.compute(inputs) == {'x': 1, 'a': 1}
 
-def test_model_5():
+def test_mutualization_of_forced_nodes():
     def b(a):
         return a
     b.forced_nodes = {"x":5,"y":3}
@@ -111,10 +112,39 @@ def test_model_5():
                                                         ('x', 5): 5, ('y', 3): 3, ('a', 'x', 5, 'y', 3): 8}
     
 
-def test_model_6():
+def test_forced_node_which_forces_itself():
     def a(x):
         return x
     a.forced_nodes = {"a":5}
 
     m = Model({"a":a})
     assert m.compute({"x":1}) == {"x":1,"a":1}
+
+def test_model_with_isolated_node():
+    def a():
+        return 1
+
+    m = Model({"a":a})
+    assert list(m.graph.nodes()) == ['a']
+    assert m.compute({}) == {'a':1}
+
+def test_model_with_cycles_error():
+    def a(b):
+        return b
+
+    def b(a):
+        return a
+    
+    with pytest.raises(Exception) as value_exception:
+        m = Model({"a":a,"b":b})
+    assert (str(value_exception.value) == "A cycle was detected: ['a', 'b']" or
+            str(value_exception.value) == "A cycle was detected: ['b', 'a']")
+
+
+def test_compute_with_kwargs():
+    def a(x):
+        return x
+    
+    m = Model({"a":a})
+    assert m.compute({},x=1) == {"a":1}
+    
