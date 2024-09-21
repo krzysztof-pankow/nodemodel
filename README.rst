@@ -46,7 +46,7 @@ Example With Conditional Function
     #c will be calculated with x forced to 100
     c.forced_nodes = {"x":100}
     
-    #Create a model from a dictionary of functions:
+    # Reinitialize the model:
     m = Model({"a":a,"b":b,"c":c})
     
     #Compute the model on a dictionary:
