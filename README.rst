@@ -7,7 +7,7 @@ Main Features
 --------------
 - **Simple Interface** – Use a single class, ``Model``, to generate a graph of functions, and its method ``compute`` to compute the graph on a dictionary.
 - **Organizes Your Code** – Add a ``@node`` decorator to your functions and load them with the ``load_nodes`` function for easy management.
-- **Supports Conditional Functions** – Easily specify that the computation of a function depends on modified inputs or the results of other functions.
+- **Supports Conditional Functions** – Easily specify that the computation of a function depends on modified inputs or the modified results of other functions.
 - **Lightweight** – ``nodemodel`` only depends on the ``networkx`` package; everything else is pure Python.
 - **Efficient** – Avoids copying data and executes all functions iteratively to maximize performance.
 
