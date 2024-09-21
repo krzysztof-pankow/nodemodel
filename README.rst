@@ -38,6 +38,22 @@ Basic Example
     result = m.compute({"x": 5, "y": 2})
     print(result)  # Output: {'x': 5, 'y': 2, 'a': 6, 'b': 14, 'c': 84}
 
+Example With Conditional Function
+^^^^^^^^^^
+
+.. code-block:: python
+
+    #c will be calculated with x forced to 100
+    c.forced_nodes = {"x":100}
+    
+    #Create a model from a dictionary of functions:
+    m = Model({"a":a,"b":b,"c":c})
+    
+    #Compute the model on a dictionary:
+    result = m.compute({"x": 5, "y": 2})
+    print(result)  # Output: {'x': 5, 'y': 2, 'a': 6, 'b': 14, 'c': 20604}
+
+Please notice that only "c" value changed after computing the model.
 
 Installation
 --------------
