@@ -11,6 +11,34 @@ Main Features
 - **Lightweight** – ``nodemodel`` only depends on the ``networkx`` package; everything else is pure Python.
 - **Efficient** – Avoids copying data and executes all functions iteratively to maximize performance.
 
+Examples
+--------------
+
+Basic Example
+^^^^^^^^^^
+
+.. code-block:: python
+
+    from nodemodel import Model
+    
+    # Define functions:
+    def c(a, b):
+        return a * b
+    
+    def a(x):
+        return x + 1
+    
+    def b(a, y):
+        return y + 2 * a
+    
+    # Initialize the model with the defined functions
+    m = Model({"a": a, "b": b, "c": c})
+    
+    # Compute values for the given inputs
+    result = m.compute({"x": 5, "y": 2})
+    print(result)  # Output: {'x': 5, 'y': 2, 'a': 6, 'b': 14, 'c': 84}
+
+
 Installation
 --------------
 You can install `nodemodel` using `pip`:
