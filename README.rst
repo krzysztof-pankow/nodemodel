@@ -55,6 +55,58 @@ Example With Conditional Function
 
 Please notice that only "c" value changed after computing the model.
 
+Example With Node Decorators
+^^^^^^^^^^
+
+Suppose we have the following file structure:
+
+.. code-block:: text
+
+    my_model/
+    ├── __init__.py
+    ├── c_code.py
+    ├── a_and_b/
+    │   ├── __init__.py
+    │   └── a_and_b_code.py
+
+We will place the example functions in these files:
+
+**c_code.py**
+
+.. code-block:: python
+
+    from nodemodel import node
+
+    @node(x=100)
+    def c(a, b):
+        return a * b
+
+**a_and_b_code.py**
+
+.. code-block:: python
+
+    from nodemodel import node
+
+    @node
+    def a(x):
+        return x + 1
+
+    @node
+    def b(a, y):
+        return y + 2 * a
+
+Now we can load and execute these functions using the `nodemodel` package:
+
+.. code-block:: python
+
+    from nodemodel import Model, load_nodes
+
+    # Import all functions with a @node decorator from the "my_model" directory
+    nodes = load_nodes("my_model")
+
+    # Initialize the model with the loaded functions
+    m = Model(nodes)
+
 Installation
 --------------
 You can install `nodemodel` using `pip`:
