@@ -1,6 +1,6 @@
 import networkx as nx
 from typing import Dict,List,Callable
-from .graph_functions import func_args
+from .helpers import func_args
 
 class ModelNode():
     compute:Callable
