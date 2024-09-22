@@ -53,7 +53,8 @@ def rename_forced_node_descendants(graph:nx.DiGraph,forced_node:str,forced_node_
     return nx.relabel_nodes(graph,name_mapping)
 
 
-def graph_subcomponent_nodes(graph:nx.DiGraph,nodes_names:List)->List:
+def graph_subcomponent_nodes(graph:nx.DiGraph,nodes_names:Union[str,List[str]])->List:
+    nodes_names = [nodes_names] if isinstance(nodes_names, str) else nodes_names
     subcomponent_nodes = set()
     for node_name in nodes_names:
         subcomponent_nodes.update(nx.ancestors(graph, node_name))
