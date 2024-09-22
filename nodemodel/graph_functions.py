@@ -22,7 +22,7 @@ def model_graph(nodes_graph:nx.DiGraph,nodes_with_forced_nodes:Dict)->nx.DiGraph
     cond_nodes = [node for node in ordered_nodes if node in nodes_with_forced_nodes.keys()]
     for cond_node in cond_nodes:
         #Get graph of all ancestors of cond_node in graph + cond_node
-        cond_node_ancestors_graph = get_node_ancestors_graph(graph,cond_node)
+        cond_node_ancestors_graph = node_ancestors_graph(graph,cond_node)
         #Rename nodes using forced_nodes info of cond_node
         forced_nodes = nodes_with_forced_nodes[cond_node]
         for forced_node,forced_node_value in forced_nodes.items():
@@ -37,7 +37,7 @@ def model_graph(nodes_graph:nx.DiGraph,nodes_with_forced_nodes:Dict)->nx.DiGraph
         graph = nx.compose(graph,cond_node_ancestors_graph)
     return graph
 
-def get_node_ancestors_graph(graph:nx.DiGraph,node:str)->nx.DiGraph:
+def node_ancestors_graph(graph:nx.DiGraph,node:str)->nx.DiGraph:
     node_ancestors = nx.ancestors(graph,node)
     node_ancestors.add(node)
     return graph.subgraph(node_ancestors).copy()
