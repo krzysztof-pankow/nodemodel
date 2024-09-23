@@ -39,8 +39,17 @@ def rename_forced_node_descendants():
 def test_model_graph():
     g = nx.DiGraph()
     g.add_edges_from([("a","b"),("b","c"),("c","d"),("e","d")])
+    def a():
+        pass
+    def b(a):
+        pass
+    def c(b):
+        pass
+    def d(e):
+        pass
+    d.forced_nodes = {"a":1}
 
-    h = model_graph(nodes_graph=g,nodes_with_forced_nodes={"d":{"a":1}})
+    h = model_graph(nodes_graph=g,nodes={"a":a,"b":b,"c":c,"d":d})
     assert set(h.edges()) == {(('a', 1), ('b', 'a', 1)),
                             (('b', 'a', 1), ('c', 'a', 1)),
                             (('c', 'a', 1), 'd'),

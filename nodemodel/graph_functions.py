@@ -12,24 +12,23 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     g = nx.DiGraph()
     g.add_edges_from(edges)
     g.add_nodes_from(list(nodes.keys()))
+    check_acyclicity(g)
     return g
 
 
-def model_graph(nodes_graph:nx.DiGraph,nodes_with_forced_nodes:Dict[str,Dict[str,Hashable]])->nx.DiGraph:
+def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
     graph = nodes_graph.copy()
-    #Sort nodes_with_forced_nodes items-> Important to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
-    nodes_with_forced_nodes = {k:dict(sorted(v.items())) for k,v in nodes_with_forced_nodes.items()}  
-    ordered_nodes = list(nx.topological_sort(nodes_graph))
-    cond_nodes = [node for node in ordered_nodes if node in nodes_with_forced_nodes.keys()]
+    ordered_nodes_names = list(nx.topological_sort(nodes_graph))
+    cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k],"forced_nodes")]
     for cond_node in cond_nodes:
         #Get graph of all ancestors of cond_node in graph + cond_node
         cond_node_ancestors_graph = node_ancestors_graph(graph,cond_node)
         #Rename nodes using forced_nodes info of cond_node
-        forced_nodes = nodes_with_forced_nodes[cond_node]
+        forced_nodes = nodes[cond_node].forced_nodes
+        forced_nodes = dict(sorted(forced_nodes.items())) #Sort to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
         for forced_node,forced_node_value in forced_nodes.items():
             if forced_node in cond_node_ancestors_graph:
-                cond_node_ancestors_graph = rename_forced_node_descendants(cond_node_ancestors_graph,
-                                                                           forced_node,forced_node_value,cond_node)
+                cond_node_ancestors_graph = rename_forced_node_descendants(cond_node_ancestors_graph,forced_node,forced_node_value,cond_node)
         #Remove cond_node edges with predecessors in the main graph 
         cond_node_predecessors = list(graph.predecessors(cond_node))
         for predecessor in cond_node_predecessors:

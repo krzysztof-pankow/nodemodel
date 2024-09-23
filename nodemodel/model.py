@@ -1,5 +1,4 @@
 from typing import Dict,List,Callable,Union
-from collections.abc import Hashable
 import networkx as nx
 from .graph_functions import nodes_graph,model_graph,graph_subcomponent_nodes,check_acyclicity
 from .model_node import ModelNode
@@ -7,7 +6,6 @@ from .model_node import ModelNode
 class Model():
     nodes: Dict[str,Callable]
     nodes_graph: nx.DiGraph
-    nodes_with_forced_nodes: Dict[str,Dict[str,Hashable]]
     graph: nx.DiGraph
     inputs: List[str]
     call_order: List[str]
@@ -17,9 +15,7 @@ class Model():
     def __init__(self,nodes:Dict[str,Callable]):
         self.nodes = nodes
         self.nodes_graph = nodes_graph(nodes)
-        check_acyclicity(self.nodes_graph)
-        self.nodes_with_forced_nodes = {k:(v.forced_nodes) for k,v in self.nodes.items() if hasattr(v,"forced_nodes")}
-        self.graph = model_graph(self.nodes_graph,self.nodes_with_forced_nodes)
+        self.graph = model_graph(self.nodes_graph,self.nodes)
         self.inputs = list(set(self.nodes_graph.nodes()).difference(nodes.keys()))
         self.call_order = [node for node in list(nx.topological_sort(self.graph)) if node not in self.inputs]
         self.model_nodes = {node_name:ModelNode(node_name,self.nodes,self.graph) for node_name in self.call_order}

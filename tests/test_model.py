@@ -106,7 +106,6 @@ def test_mutualization_of_forced_nodes():
 
     m = Model(nodes)
     assert set(m.auxiliary_nodes) == {('y', 3), ('x', 5), ('a', 'x', 5, 'y', 3)}
-    assert m.nodes_with_forced_nodes == {'b': {'x': 5, 'y': 3}, 'c': {'y': 3, 'x': 5}}
     assert m.compute(inputs) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8}
     assert m.compute(inputs,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8, 
                                                         ('x', 5): 5, ('y', 3): 3, ('a', 'x', 5, 'y', 3): 8}
