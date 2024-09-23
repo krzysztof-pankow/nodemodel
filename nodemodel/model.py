@@ -1,4 +1,5 @@
 from typing import Dict,List,Callable,Union
+from collections.abc import Hashable
 import networkx as nx
 from .graph_functions import nodes_graph,model_graph,graph_subcomponent_nodes,check_acyclicity
 from .model_node import ModelNode
@@ -6,7 +7,7 @@ from .model_node import ModelNode
 class Model():
     nodes: Dict[str,Callable]
     nodes_graph: nx.DiGraph
-    nodes_with_forced_nodes: Dict[str,Dict]
+    nodes_with_forced_nodes: Dict[str,Dict[str,Hashable]]
     graph: nx.DiGraph
     inputs: List[str]
     call_order: List[str]

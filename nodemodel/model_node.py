@@ -1,12 +1,13 @@
 import networkx as nx
 from typing import Dict,List,Callable
+from collections.abc import Hashable
 from .helpers import func_args
 
 class ModelNode():
     compute:Callable
     inputs: List
 
-    def __init__(self,node_name,nodes:Dict,nodes_with_forced_nodes:Dict,graph:nx.DiGraph):
+    def __init__(self,node_name:str,nodes:Dict,nodes_with_forced_nodes:Dict[str,Dict[str,Hashable]],graph:nx.DiGraph):
         if node_name in nodes_with_forced_nodes.keys():
             self.compute = nodes[node_name]
             origin_inputs = func_args(self.compute)

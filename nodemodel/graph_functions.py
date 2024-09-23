@@ -1,5 +1,6 @@
 import networkx as nx
 from typing import List,Dict,Callable,Union
+from collections.abc import Hashable
 from .helpers import func_args,custom_tuple_concat
 
 def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
@@ -14,7 +15,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     return g
 
 
-def model_graph(nodes_graph:nx.DiGraph,nodes_with_forced_nodes:Dict)->nx.DiGraph:
+def model_graph(nodes_graph:nx.DiGraph,nodes_with_forced_nodes:Dict[str,Dict[str,Hashable]])->nx.DiGraph:
     graph = nodes_graph.copy()
     #Sort nodes_with_forced_nodes items-> Important to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
     nodes_with_forced_nodes = {k:dict(sorted(v.items())) for k,v in nodes_with_forced_nodes.items()}  
@@ -42,7 +43,7 @@ def node_ancestors_graph(graph:nx.DiGraph,node:str)->nx.DiGraph:
     node_ancestors.add(node)
     return graph.subgraph(node_ancestors).copy()
 
-def rename_forced_node_descendants(graph:nx.DiGraph,forced_node:str,forced_node_value:Dict,
+def rename_forced_node_descendants(graph:nx.DiGraph,forced_node:str,forced_node_value:Hashable,
                                    skip_nodes:Union[str,List[str]])->nx.DiGraph:
     skip_nodes = [skip_nodes] if isinstance(skip_nodes, str) else skip_nodes
     forced_node_descendants = list(nx.descendants(graph,forced_node))
@@ -53,7 +54,7 @@ def rename_forced_node_descendants(graph:nx.DiGraph,forced_node:str,forced_node_
     return nx.relabel_nodes(graph,name_mapping)
 
 
-def graph_subcomponent_nodes(graph:nx.DiGraph,nodes_names:Union[str,List[str]])->List:
+def graph_subcomponent_nodes(graph:nx.DiGraph,nodes_names:Union[str,List[str]])->List[str]:
     nodes_names = [nodes_names] if isinstance(nodes_names, str) else nodes_names
     subcomponent_nodes = set()
     for node_name in nodes_names:
