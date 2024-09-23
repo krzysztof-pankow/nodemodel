@@ -22,7 +22,7 @@ class Model():
         self.graph = model_graph(self.nodes_graph,self.nodes_with_forced_nodes)
         self.inputs = list(set(self.nodes_graph.nodes()).difference(nodes.keys()))
         self.call_order = [node for node in list(nx.topological_sort(self.graph)) if node not in self.inputs]
-        self.model_nodes = {k:ModelNode(k,self.nodes,self.nodes_with_forced_nodes,self.graph) for k in self.call_order}
+        self.model_nodes = {node_name:ModelNode(node_name,self.nodes,self.graph) for node_name in self.call_order}
         self.auxiliary_nodes = list(set(self.graph.nodes()).difference(self.nodes_graph.nodes()))
 
     def compute(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:
