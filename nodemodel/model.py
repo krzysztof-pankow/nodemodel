@@ -1,7 +1,7 @@
 from typing import Dict,List,Callable,Union
 import networkx as nx
 from .graph_functions import nodes_graph,model_graph,graph_subcomponent_nodes,check_acyclicity
-from .model_node import ModelNode
+from .model_node import model_node_factory
 
 class Model():
     nodes: Dict[str,Callable]
@@ -18,7 +18,7 @@ class Model():
         self.graph = model_graph(self.nodes_graph,self.nodes)
         self.inputs = list(set(self.nodes_graph.nodes()).difference(nodes.keys()))
         self.call_order = [node for node in list(nx.topological_sort(self.graph)) if node not in self.inputs]
-        self.model_nodes = {node_name:ModelNode(node_name,self.nodes,self.graph) for node_name in self.call_order}
+        self.model_nodes = {node_name:model_node_factory(node_name,self.nodes,self.graph) for node_name in self.call_order}
         self.auxiliary_nodes = list(set(self.graph.nodes()).difference(self.nodes_graph.nodes()))
 
     def compute(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:

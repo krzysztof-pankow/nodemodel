@@ -9,6 +9,11 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
         deps = func_args(node)
         for dep in deps:
             edges.append((dep,node_name))
+        if hasattr(node,"forced_nodes"):
+            for forced_node,forced_node_value in node.forced_nodes.items():
+                #Add an edge ("another_node",node_name) if forced_node_value = ("node","another_node"):
+                if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":
+                    edges.append((forced_node_value[1],node_name))
     g = nx.DiGraph()
     g.add_edges_from(edges)
     g.add_nodes_from(list(nodes.keys()))

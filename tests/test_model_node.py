@@ -49,6 +49,15 @@ def test_model_node_forced_value():
     assert model_node.compute() == 2
     assert model_node.inputs == []
 
+def test_model_node_forced_value_which_is_node():
+    node_name = ("x",("node","y"))
+    nodes = {}
+    graph = nx.DiGraph()
+    model_node = ModelNode(node_name,nodes,graph)
+
+    assert model_node.compute(100) == 100
+    assert model_node.inputs == ["y"]
+
 def test_model_node_auxiliary():
     def a(x,y):
         pass

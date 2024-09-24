@@ -16,6 +16,17 @@ def test_nodes_graph():
     assert set(g.edges()) == {('y', 'a'), ('x', 'b'), ('a', 'b')}
     assert set(g.nodes()) == {'a', 'x', 'b', 'y','c'}
 
+def test_nodes_graph_with_forced_node_to_node():
+    def a():
+        pass
+    def b(a):
+        pass
+    def c(b):
+        pass
+    c.forced_nodes = {"b":("node","a")}
+    g = nodes_graph(nodes={"a":a,"b":b,"c":c})
+    assert set(g.edges()) == {('a', 'b'),('b', 'c'),('a', 'c')}
+
 def test_node_ancestors_graph():
     g = nx.DiGraph()
     g.add_edges_from([("a","b"),("b","c"),("c","d")])
