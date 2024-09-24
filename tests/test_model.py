@@ -239,4 +239,25 @@ def test_compute_with_kwargs():
     m = Model({"a":a})
     assert m.compute({},x=1) == {"a":1}
 
- 
+def test_forced_node_to_ancestor_node():
+    def c(b):
+        return b
+    def b(a,x):
+        return a + x
+    def a(y):
+        return y
+    c.forced_nodes = {"b":("node","a")}
+    m = Model({"a":a,"b":b,"c":c})
+
+    assert set(m.graph.edges()) == {('y', 'a'), ('a', 'b'), ('x', 'b'),
+    ('a', ('b', ('node', 'a'))),
+    ('a', 'c'),
+    (('b', ('node', 'a')), 'c')
+    }
+    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 1}
+    assert m.auxiliary_nodes == [('b', ('node', 'a'))]
+
+
+
+#Check if forced_node is a successor of node forced_value
+#test c(b,a) where c.forced_nodes = {"b":("node","a")}

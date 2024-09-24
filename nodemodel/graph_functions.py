@@ -22,26 +22,37 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
 
 
 def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
+    #Get list of nodes which have an attribute 'forced_nodes' -> cond_nodes
     graph = nodes_graph.copy()
     ordered_nodes_names = list(nx.topological_sort(nodes_graph))
     cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k],"forced_nodes")]
+    #Modify the main graph:
     for cond_node in cond_nodes:
         #Get graph of all ancestors of cond_node in graph + cond_node
         cond_node_ancestors_graph = node_ancestors_graph(graph,cond_node)
-        #Rename nodes using forced_nodes info of cond_node
+        #Sort to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
         forced_nodes = nodes[cond_node].forced_nodes
-        forced_nodes = dict(sorted(forced_nodes.items())) #Sort to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
+        forced_nodes = dict(sorted(forced_nodes.items()))
+        #Modify cond_node_ancestors_graph:
         for forced_node,forced_node_value in forced_nodes.items():
-            if forced_node in cond_node_ancestors_graph:
+            if forced_node in cond_node_ancestors_graph and forced_node != cond_node:
+                #Remove predecessors edges of forced_node
+                cond_node_ancestors_graph = remove_predecessors_edges(cond_node_ancestors_graph,forced_node)
+                #Rename nodes using forced_nodes info of cond_node
                 cond_node_ancestors_graph = rename_forced_node_descendants(cond_node_ancestors_graph,forced_node,forced_node_value,cond_node)
+                #If forced_node_value is another node, add an edge between this node and forced_node
                 if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":
                     graph.add_edge(forced_node_value[1],(forced_node,forced_node_value))
-        #Remove cond_node edges with predecessors in the main graph 
-        cond_node_predecessors = list(graph.predecessors(cond_node))
-        for predecessor in cond_node_predecessors:
-            graph.remove_edge(predecessor, cond_node)
+        #Remove predecessors edges of cond_node
+        graph = remove_predecessors_edges(graph,cond_node)
         #Combine cond_node_ancestors_graph with the main graph
         graph = nx.compose(graph,cond_node_ancestors_graph)
+    return graph
+
+def remove_predecessors_edges(graph:nx.DiGraph,node:str)->nx.DiGraph:
+    cond_node_predecessors = list(graph.predecessors(node))
+    for predecessor in cond_node_predecessors:
+        graph.remove_edge(predecessor, node)
     return graph
 
 def node_ancestors_graph(graph:nx.DiGraph,node:str)->nx.DiGraph:
