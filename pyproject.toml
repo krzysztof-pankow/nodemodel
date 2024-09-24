@@ -4,14 +4,14 @@ requires = ['setuptools>=61.2']
 
 [project]
 name = "nodemodel"
-version = "0.1.3"
+version = "0.1.4"
 description = "Generates and processes a graph based on a dictionary of functions, using the function names and their argument names to define the relationships."
 authors = [
     { name = "Krzysztof Pankow", email = "kpankow@dinga.ai" }
 ]
 license = { text = "MIT" }
 requires-python = ">=3.8"
-readme = "README.md"
+readme = "README.rst"
 keywords = ["graph", "model", "node", "function", "relationship"]
 dependencies = ["networkx >= 3.1"]
 
