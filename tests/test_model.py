@@ -257,7 +257,38 @@ def test_forced_node_to_ancestor_node():
     assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 1}
     assert m.auxiliary_nodes == [('b', ('node', 'a'))]
 
+def test_forced_node_to_descendant_node():
+    #At first a bit strange that it doesn't create a cycle in the graph but it is normal:
+    #Nodes are renamed and there are two b's: 'b' and ('b', 'a', ('node', 'b')))
+    def c(b):
+        return b
+    def b(a,x):
+        return a + x
+    def a(y):
+        return y
+    c.forced_nodes = {"a":("node","b")}
+    m = Model({"a":a,"b":b,"c":c})
 
+    assert set(m.graph.edges()) == {('y', 'a'), ('x', 'b'), ('a', 'b'),
+    ('b', ('a', ('node', 'b'))),
+    (('a', ('node', 'b')), ('b', 'a', ('node', 'b'))), 
+    ('x', ('b', 'a', ('node', 'b'))),
+    (('b', 'a', ('node', 'b')), 'c')
+    }
+    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 3}
+    assert set(m.auxiliary_nodes) == {('a', ('node', 'b')),('b', 'a', ('node', 'b'))}
 
-#Check if forced_node is a successor of node forced_value
-#test c(b,a) where c.forced_nodes = {"b":("node","a")}
+#Check if dynamic optimisation can work
+
+def test_forced_node_to_ancestor_and_predecessor_node():
+    #node 'a' is both ancestor and predecessor of c
+    def c(b,a):
+        return b + a
+    def b(a,x):
+        return a + x
+    def a(y):
+        return y
+    c.forced_nodes = {"b":("node","a")}
+    m = Model({"a":a,"b":b,"c":c})
+
+    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 2}
