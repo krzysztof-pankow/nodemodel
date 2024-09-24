@@ -34,6 +34,8 @@ def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
         for forced_node,forced_node_value in forced_nodes.items():
             if forced_node in cond_node_ancestors_graph:
                 cond_node_ancestors_graph = rename_forced_node_descendants(cond_node_ancestors_graph,forced_node,forced_node_value,cond_node)
+                if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":
+                    graph.add_edge(forced_node_value[1],(forced_node,forced_node_value))
         #Remove cond_node edges with predecessors in the main graph 
         cond_node_predecessors = list(graph.predecessors(cond_node))
         for predecessor in cond_node_predecessors:
@@ -72,4 +74,5 @@ def check_acyclicity(graph:nx.DiGraph)->None:
     else:
         cycles = nx.simple_cycles(graph)
         smallest_cycle = min(cycles,key = len)
-        raise ValueError(f"A cycle was detected: {smallest_cycle}")  
+        raise ValueError(f"A cycle was detected: {smallest_cycle}")
+

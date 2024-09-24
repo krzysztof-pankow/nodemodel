@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import Dict,List,Callable
+from typing import Dict,List,Callable,Union, Tuple
 from collections.abc import Hashable
 from .helpers import func_args
 
@@ -48,10 +48,10 @@ class ModelNodeForcedToNode(ModelNode):
 
 class ModelNodeRecalculatedWithForcedNodes(ModelNode):
     """
-    A node which is an ancestor of node with 'forced_nodes' attribute and is an succesor of its forced_nodes.
+    A node which is an ancestor of a node with an attribute 'forced_nodes' and is a succesor of its forced_nodes.
     Example: node_name = ('c','x',1)
     """
-    def __init__(self,node_name:str,nodes:Dict[str,Callable],graph:nx.DiGraph):
+    def __init__(self,node_name:Tuple,nodes:Dict[str,Callable],graph:nx.DiGraph):
         origin_node_name = node_name[0]
         self.compute = nodes[origin_node_name]
         origin_inputs = func_args(self.compute)
@@ -60,18 +60,26 @@ class ModelNodeRecalculatedWithForcedNodes(ModelNode):
         self.inputs = [inputs_dict[k] for k in origin_inputs]
 
 
-def model_node_factory(node_name:str,nodes:Dict[str,Callable],graph:nx.DiGraph):
-    """A factory function which decides which `ModelNode` class to use depending on node_name.
-    It creates objects whose `compute` method will be called iteratively in `Model.compute` method.
+def model_node_factory(node_name:Union[str, Tuple],nodes:Dict[str,Callable],graph:nx.DiGraph):
+    """
+    A factory function that selects the appropriate `ModelNode` class based on the given `node_name`.
+
+    This function constructs objects whose `compute` method will be invoked iteratively 
+    within the `Model.compute` method. These objects represent nodes in the computation 
+    graph.
     
     Args:
-        node_name (str): A node_name defined during construction of the graph with `model_graph` function.
+        node_name (Union[str, tuple]): The name of the node, as defined when constructing the graph using 
+            the `model_graph` function.
         nodes (Dict[str,Callable]): A dictionary of functions included in the model.
-        graph (nx.DiGraph): A graph constructed from the nodes dictionary
+        graph (nx.DiGraph): A directed graph (DiGraph) representing the structure of the model, 
+            created from the `nodes` dictionary.
 
     Returns:
-        Any: An object whose class inherits from the `ModelNode` class. 
-        It has proporties `compute` and `inputs`.
+        ModelNode: An instance of a class inheriting from `ModelNode`.
+        The returned object has the following proporties
+        - `compute`: A method used to perform computations at the node.
+        - `inputs`: The inputs required for the node's computation.
     """
     if node_name in nodes.keys() and hasattr(nodes[node_name],"forced_nodes"):
         return ModelNodeWithForcedNodes(node_name,nodes,graph)
@@ -85,3 +93,4 @@ def model_node_factory(node_name:str,nodes:Dict[str,Callable],graph:nx.DiGraph):
             return ModelNodeForcedToValue(forced_node_value)
     elif isinstance(node_name,tuple) and len(node_name) > 2:
         return ModelNodeRecalculatedWithForcedNodes(node_name,nodes,graph)
+    

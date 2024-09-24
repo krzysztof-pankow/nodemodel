@@ -1,31 +1,5 @@
-from nodemodel.model_node import ModelNode
+import nodemodel.model_node as md
 import networkx as nx
-
-def test_model_node_with_forced_values():
-    def a(x,y):
-        pass
-    a.forced_nodes = {"x":1,"y":2}
-    node_name = "a"
-    nodes = {"a":a}
-    graph = nx.DiGraph()
-    graph.add_edges_from([(("x",1),"a"),(("y",2),"a")])
-
-    model_node = ModelNode(node_name,nodes,graph)
-    assert model_node.compute == a
-    assert model_node.inputs == [("x",1),("y",2)]
-
-def test_model_node_with_forced_values_no_arguments():
-    def a():
-        pass
-    a.forced_nodes = {"x":1,"y":2}
-    node_name = "a"
-    nodes = {"a":a}
-    graph = nx.DiGraph()
-    graph.add_nodes_from(["a"])
-    model_node = ModelNode(node_name,nodes,graph)
-
-    assert model_node.compute == a
-    assert model_node.inputs == []
 
 def test_model_node_simple():
     def a(x,y):
@@ -34,27 +8,57 @@ def test_model_node_simple():
     nodes = {"a":a}
     graph = nx.DiGraph()
     graph.add_edges_from([("x","a"),("y","a")])
-    model_node = ModelNode(node_name,nodes,graph)
-
+    model_node = md.model_node_factory(node_name,nodes,graph)
+    
+    assert isinstance(model_node,md.ModelNodeSimple)
     assert model_node.compute == a
     assert model_node.inputs == ["x","y"]
 
+def test_model_node_with_forced_nodes():
+    def a(x,y):
+        pass
+    a.forced_nodes = {"x":1,"y":2}
+    node_name = "a"
+    nodes = {"a":a}
+    graph = nx.DiGraph()
+    graph.add_edges_from([(("x",1),"a"),(("y",2),"a")])
+    model_node = md.model_node_factory(node_name,nodes,graph)
 
-def test_model_node_forced_value():
+    assert isinstance(model_node,md.ModelNodeWithForcedNodes)
+    assert model_node.compute == a
+    assert model_node.inputs == [("x",1),("y",2)]
+
+def test_model_node_with_forced_nodes_no_arguments():
+    def a():
+        pass
+    a.forced_nodes = {"x":1,"y":2}
+    node_name = "a"
+    nodes = {"a":a}
+    graph = nx.DiGraph()
+    graph.add_nodes_from(["a"])
+    model_node = md.model_node_factory(node_name,nodes,graph)
+
+    assert isinstance(model_node,md.ModelNodeWithForcedNodes)
+    assert model_node.compute == a
+    assert model_node.inputs == []
+
+def test_model_node_forced_to_value():
     node_name = ("x",2)
     nodes = {}
     graph = nx.DiGraph()
-    model_node = ModelNode(node_name,nodes,graph)
+    model_node = md.model_node_factory(node_name,nodes,graph)
 
+    assert isinstance(model_node,md.ModelNodeForcedToValue)
     assert model_node.compute() == 2
     assert model_node.inputs == []
 
-def test_model_node_forced_value_which_is_node():
+def test_model_node_forced_to_node():
     node_name = ("x",("node","y"))
     nodes = {}
     graph = nx.DiGraph()
-    model_node = ModelNode(node_name,nodes,graph)
+    model_node = md.model_node_factory(node_name,nodes,graph)
 
+    assert isinstance(model_node,md.ModelNodeForcedToNode)
     assert model_node.compute(100) == 100
     assert model_node.inputs == ["y"]
 
@@ -66,9 +70,8 @@ def test_model_node_auxiliary():
     nodes = {"a":a}
     graph = nx.DiGraph()
     graph.add_edges_from([(("x",1),("a","x",1,"y",2)),(("y",2),("a","x",1,"y",2))])
+    model_node = md.model_node_factory(node_name,nodes,graph)
 
-    model_node = ModelNode(node_name,nodes,graph)
+    assert isinstance(model_node,md.ModelNodeRecalculatedWithForcedNodes)
     assert model_node.compute == a
     assert model_node.inputs == [("x",1),("y",2)]
-
-
