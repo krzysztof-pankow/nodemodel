@@ -1,9 +1,11 @@
 nodemodel
 ========
 
-.. image::
-    https://github.com/krzysztof-pankow/nodemodel/actions/workflows/quality.yml/badge.svg
+.. image:: https://github.com/krzysztof-pankow/nodemodel/actions/workflows/quality.yml/badge.svg
     :target: https://github.com/krzysztof-pankow/nodemodel/actions?query=workflow%3Atest
+.. image:: https://codecov.io/github/krzysztof-pankow/nodemodel/graph/badge.svg?token=00PQHNZH4W
+    :target: https://codecov.io/github/krzysztof-pankow/nodemodel
+
 
 Nodemodel is a small Python package for generating and computing a graph based on a dictionary of functions. It uses the function names and their argument names to define relationships within the graph.
 
