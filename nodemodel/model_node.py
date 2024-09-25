@@ -18,7 +18,7 @@ class ModelNodeSimple(ModelNode):
 
 class ModelNodeWithForcedNodes(ModelNode):
     """
-    A node with 'forced_nodes' attribute.
+    A node with the 'forced_nodes' attribute.
     Example: node_name = 'a' and a.forced_nodes = {"x":1}
     """
     def __init__(self,node_name:str,nodes:Dict[str,Callable],graph:nx.DiGraph):
@@ -48,7 +48,7 @@ class ModelNodeForcedToNode(ModelNode):
 
 class ModelNodeRecalculatedWithForcedNodes(ModelNode):
     """
-    A node which is an ancestor of a node with an attribute 'forced_nodes' and is a succesor of its forced_nodes.
+    A node that is an ancestor of a node with the 'forced_nodes' attribute and also a successor of the nodes in its 'forced_nodes'.
     Example: node_name = ('c','x',1)
     """
     def __init__(self,node_name:Tuple,nodes:Dict[str,Callable],graph:nx.DiGraph):
