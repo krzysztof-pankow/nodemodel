@@ -28,38 +28,48 @@ Basic Example
     from nodemodel import Model
     
     # Define functions:
+    def d(a):
+        return a * 10
+    
     def c(a, b):
-        return a * b
+        return a + b
+
+    def b(y):
+        return y + 1
     
     def a(x):
         return x + 1
     
-    def b(a, y):
-        return y + 2 * a
-    
     # Initialize the model with the defined functions
-    m = Model({"a": a, "b": b, "c": c})
+    m = Model({"a": a, "b": b, "c": c,"d": d})
     
     # Compute values for the given inputs
-    result = m.compute({"x": 5, "y": 2})
-    print(result)  # Output: {'x': 5, 'y': 2, 'a': 6, 'b': 14, 'c': 84}
+    result = m.compute({"x": 1, "y": 2})
+    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'd': 20, 'c': 5}
+    
+    # Compute only a part of the model
+    result = m.submodel("d").compute({"x": 1, "y": 2})
+    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'd': 20}
 
-Example With Conditional Function
+Example With Conditional Functions
 ^^^^^^^^^^
 
 .. code-block:: python
 
-    #c will be calculated with x forced to 100
+    #"c" will be calculated with "x" forced to 100
     c.forced_nodes = {"x":100}
     
+    #"d" will be calculated with "a" forced to "b"
+    d.forced_nodes = {"a":("node","b")}
+    
     # Reinitialize the model:
-    m = Model({"a":a,"b":b,"c":c})
+    m = Model({"a": a, "b": b, "c": c,"d": d})
     
     #Compute the model on a dictionary:
-    result = m.compute({"x": 5, "y": 2})
-    print(result)  # Output: {'x': 5, 'y': 2, 'a': 6, 'b': 14, 'c': 20604}
+    result = m.compute({"x": 1, "y": 2})
+    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
-Please notice that only "c" value changed after computing the model.
+Please notice that only "c" and "d" values changed after computing the model.
 
 Example With Node Decorators
 ^^^^^^^^^^
@@ -70,14 +80,14 @@ Suppose we have the following file structure:
 
     my_model/
     ├── __init__.py
-    ├── c_code.py
+    ├── c_and_d_code.py
     ├── a_and_b/
     │   ├── __init__.py
     │   └── a_and_b_code.py
 
 We will place the example functions in these files:
 
-**c_code.py**
+**c_and_d_code.py**
 
 .. code-block:: python
 
@@ -85,7 +95,11 @@ We will place the example functions in these files:
 
     @node(x=100)
     def c(a, b):
-        return a * b
+        return a + b
+
+    @node(a=("node","b"))
+    def d(a):
+        return a * 10
 
 **a_and_b_code.py**
 
@@ -98,8 +112,8 @@ We will place the example functions in these files:
         return x + 1
 
     @node
-    def b(a, y):
-        return y + 2 * a
+    def b(y):
+        return y + 1
 
 Now we can load and execute these functions using the `nodemodel` package:
 
@@ -112,6 +126,10 @@ Now we can load and execute these functions using the `nodemodel` package:
 
     # Initialize the model with the loaded functions
     m = Model(nodes)
+
+    #Compute the model on a dictionary:
+    result = m.compute({"x": 1, "y": 2})
+    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
 Installation
 --------------
