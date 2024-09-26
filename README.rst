@@ -23,11 +23,8 @@ Main Features
 - **Lightweight** – ``nodemodel`` only depends on the ``networkx`` package; everything else is pure Python.
 - **Efficient** – Avoids copying data and executes all functions iteratively to maximize performance.
 
-Examples
+Example: Basic
 --------------
-
-Basic Example
-^^^^^^^^^^
 
 .. code-block:: python
 
@@ -57,8 +54,8 @@ Basic Example
     result = m.submodel("d").compute({"x": 1, "y": 2})
     print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'd': 20}
 
-Example With Conditional Functions
-^^^^^^^^^^
+Example: Conditional functions
+--------------
 
 .. code-block:: python
 
@@ -77,8 +74,8 @@ Example With Conditional Functions
 
 Please notice that only "c" and "d" values changed after computing the model.
 
-Example With Node Decorators
-^^^^^^^^^^
+Example: Node decorators
+--------------
 
 Suppose we have the following file structure:
 
@@ -136,6 +133,27 @@ Now we can load and execute these functions using the `nodemodel` package:
     #Compute the model on a dictionary:
     result = m.compute({"x": 1, "y": 2})
     print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
+
+Example: Using nodemodel with Pandas
+--------------
+
+Nodemodel can be useful for working with different data structures.
+For example, with `pandas` DataFrames:
+
+.. code-block:: python
+
+   import pandas as pd
+   df = pd.DataFrame({"x": [1, 2, 3],"y": [2, 3, 4]})
+
+   df = df.to_dict(orient="series")
+   result = pd.DataFrame(m.compute(df))
+   print(result)
+
+      x  y  a  b    c   d
+   0  1  2  2  3  104  30
+   1  2  3  3  4  105  40
+   2  3  4  4  5  106  50
+
 
 Installation
 --------------
