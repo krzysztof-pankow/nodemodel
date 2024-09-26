@@ -21,14 +21,6 @@ class Model():
         model_nodes (Dict[str, model_node]): A dictionary of node names to their respective `model_node` objects, used for computation.
         auxiliary_nodes (List[str]): A list of nodes that are generated as auxiliary nodes in the graph, typically for conditional functions.
     """
-    nodes: Dict[str,Callable]
-    nodes_graph: nx.DiGraph
-    graph: nx.DiGraph
-    inputs: List[str]
-    call_order: List[str]
-    model_nodes: Dict
-    auxiliary_nodes:List[str]
-
     def __init__(self,nodes:Dict[str,Callable]):
         """
         Initializes the `Model` instance by constructing the function graph and preparing the model for computation.
