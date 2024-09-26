@@ -12,6 +12,9 @@ nodemodel
 
 Nodemodel is a small Python package for generating and computing a graph based on a dictionary of functions. It uses the function names and their argument names to define relationships within the graph.
 
+- **Source:** https://github.com/krzysztof-pankow/nodemodel
+- **Tutorial:** https://nodemodel.readthedocs.io/en/latest
+
 Main Features
 --------------
 - **Simple Interface** – Use a single class, ``Model``, to generate a graph of functions, and its method ``compute`` to compute the graph on a dictionary.
