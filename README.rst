@@ -1,5 +1,5 @@
 nodemodel
-========
+=========
 
 .. image:: https://github.com/krzysztof-pankow/nodemodel/actions/workflows/quality.yml/badge.svg
    :target: https://github.com/krzysztof-pankow/nodemodel/actions?query=workflow%3Atest
@@ -21,7 +21,7 @@ Nodemodel is a small Python package for generating and computing a graph based o
 - **Tutorial:** https://nodemodel.readthedocs.io/en/latest
 
 Main Features
---------------
+-------------
 - **Simple Interface** – Use a single class, ``Model``, to generate a graph of functions, and its method ``compute`` to compute the graph on a dictionary.
 - **Organizes Your Code** – Add a ``@node`` decorator to your functions and load them with the ``load_nodes`` function for easy management.
 - **Supports Conditional Functions** – Easily specify that the computation of a function depends on modified inputs or the modified results of other functions.
@@ -60,7 +60,7 @@ Example: Basic
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'd': 20}
 
 Example: Conditional functions
---------------
+------------------------------
 
 .. code-block:: python
 
@@ -80,7 +80,7 @@ Example: Conditional functions
 Please notice that only "c" and "d" values changed after computing the model.
 
 Example: Node decorators
---------------
+------------------------
 
 Suppose we have the following file structure:
 
@@ -140,7 +140,7 @@ Now we can load and execute these functions using the `nodemodel` package:
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
 Example: Using nodemodel with Pandas
---------------
+------------------------------------
 
 Nodemodel can be useful for working with different data structures.
 For example, with `pandas` DataFrames:
@@ -160,7 +160,7 @@ For example, with `pandas` DataFrames:
    2  3  4  4  5  106  50
 
 Installation
---------------
+------------
 You can install `nodemodel` using `pip`:
 
 .. code-block:: bash
