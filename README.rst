@@ -8,6 +8,9 @@ nodemodel
 .. image:: https://readthedocs.org/projects/nodemodel/badge/?version=latest
     :target: https://nodemodel.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+.. image::
+    https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue
+    :target: https://pypi.python.org/pypi/nodemodel
 
 
 Nodemodel is a small Python package for generating and computing a graph based on a dictionary of functions. It uses the function names and their argument names to define relationships within the graph.
