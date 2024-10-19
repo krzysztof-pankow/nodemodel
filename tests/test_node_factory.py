@@ -1,4 +1,4 @@
-from nodemodel.node_factory import Node,node_factory
+from nodemodel.node_factory import Node,node_factory,node_generator
 
 def test_node_class():
     def a(b,c,d = 1,*args,**kwargs):
@@ -24,3 +24,17 @@ def test_node_factory():
     assert nodes["b"].compute == b
     assert nodes["b"].inputs == ["y"]
     assert hasattr(nodes["b"],"forced_nodes")
+
+def test_node_generator():
+    class A_Factory():
+        def __init__(self,k):
+            self.a = f"a_{k}"
+            self.b = f"b_{k}"
+    def a(b):
+        return b
+    a.node_cases = [A_Factory(1),A_Factory(2),A_Factory(3)]
+
+    nodes = node_generator("a",a)
+
+    assert list(nodes.keys()) == ['a_1', 'a_2', 'a_3']
+
