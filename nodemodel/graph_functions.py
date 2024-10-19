@@ -33,7 +33,7 @@ def nodes_graph(nodes:Dict[str,Node])->nx.DiGraph:
 
     edges = []
     for node_name,node in nodes.items():
-        deps = node.inputs
+        deps = node.inputs.values()
         for dep in deps:
             edges.append((dep,node_name))
         if hasattr(node,"forced_nodes"):

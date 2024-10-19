@@ -63,8 +63,8 @@ class Model():
         input.update(kwargs)
         for node_name in self.call_order:
             model_node = self.model_nodes[node_name]
-            call_input = [input[k] for k in model_node.inputs]
-            input[node_name] = model_node.compute(*call_input)
+            call_input = {k:input[v] for k,v in model_node.inputs.items()}
+            input[node_name] = model_node.compute(**call_input)
         if not keep_auxiliary_nodes:
             for auxiliary_node in self.auxiliary_nodes:
                 del input[auxiliary_node]

@@ -4,10 +4,10 @@ from .helpers import func_args
 
 class Node():
     compute:Callable
-    inputs: List[str]
+    inputs: Dict[str,str]
     def __init__(self,node:FunctionType):
         self.compute = node
-        self.inputs = func_args(node)
+        self.inputs = {k:k for k in func_args(node)}
 
 def node_factory(function_nodes:Dict[str,Callable])-> Dict[str, Node]:
     nodes = {}

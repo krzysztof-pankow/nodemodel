@@ -19,10 +19,9 @@ class ModelNodeWithForcedNodes(Node):
     """
     def __init__(self,node_name:str,nodes:Dict[str,Node],graph:nx.DiGraph):
         self.compute = nodes[node_name].compute
-        origin_inputs = nodes[node_name].inputs
-        inputs_unordered = list(graph.predecessors(node_name))
-        inputs_dict = {(k[0] if isinstance(k,tuple) else k):k for k in inputs_unordered}
-        self.inputs = [inputs_dict[k] for k in origin_inputs]
+        node_predecessors = list(graph.predecessors(node_name))
+        self.inputs = {(k[0] if isinstance(k,tuple) else k):k for k in node_predecessors}
+        self.inputs = {k:v for k,v in self.inputs.items() if k in nodes[node_name].inputs.keys()}
 
 class ModelNodeForcedToValue(Node):
     """
@@ -31,7 +30,7 @@ class ModelNodeForcedToValue(Node):
     """
     def __init__(self,forced_node_value:Hashable):
         self.compute = lambda x = forced_node_value: x
-        self.inputs = []
+        self.inputs = {}
 
 class ModelNodeForcedToNode(Node):
     """
@@ -40,7 +39,7 @@ class ModelNodeForcedToNode(Node):
     """
     def __init__(self,forced_node_value:Hashable):
             self.compute = lambda x : x
-            self.inputs = [forced_node_value[1]]
+            self.inputs = {"x":forced_node_value[1]}
 
 class ModelNodeRecalculatedWithForcedNodes(Node):
     """
@@ -50,10 +49,8 @@ class ModelNodeRecalculatedWithForcedNodes(Node):
     def __init__(self,node_name:Tuple,nodes:Dict[str,Node],graph:nx.DiGraph):
         origin_node_name = node_name[0]
         self.compute = nodes[origin_node_name].compute
-        origin_inputs = nodes[origin_node_name].inputs
-        inputs_unordered = list(graph.predecessors(node_name))
-        inputs_dict = {(k[0] if isinstance(k,tuple) else k):k for k in inputs_unordered}
-        self.inputs = [inputs_dict[k] for k in origin_inputs]
+        node_predecessors = list(graph.predecessors(node_name))
+        self.inputs = {(k[0] if isinstance(k,tuple) else k):k for k in node_predecessors}
 
 
 def model_node_factory(node_name:Union[str, Tuple],nodes:Dict[str,Node],graph:nx.DiGraph):

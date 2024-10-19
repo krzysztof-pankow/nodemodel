@@ -30,8 +30,8 @@ def test_model_with_forced_nodes_and_its_properties():
                                     ('y', 'b')}
     assert m.call_order == [('x', 2), ('y', 3), 'a', ('a', 'x', 2), 'b', ('b', 'y', 3), 'e', 'c']
     assert m.model_nodes[('x', 2)].compute() == 2
-    assert m.model_nodes['b'].inputs == [('a', 'x', 2), 'y']
-    assert m.model_nodes['c'].inputs == [('b', 'y', 3)]
+    assert m.model_nodes['b'].inputs == {'y': 'y', 'a': ('a', 'x', 2)}
+    assert m.model_nodes['c'].inputs == {'b': ('b', 'y', 3)}
     assert set(m.auxiliary_nodes) == {('b', 'y', 3), ('a', 'x', 2), ('x', 2), ('y', 3)}
     assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
     assert m.compute(input,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, ('x', 2): 2, ('y', 3): 3, 'a': 1, ('a', 'x', 2): 2, 
@@ -48,6 +48,10 @@ def test_forced_nodes_to_nodes():
         return c
     d.forced_nodes = {"a":("node","e")}
     m = Model({"a":a,"b":b,"c":c,"d":d})
+    assert m.model_nodes["d"].inputs == {'c': ('c', 'a', ('node', 'e'))}
+    assert m.model_nodes[('c', 'a', ('node', 'e'))].inputs == {'b': ('b', 'a', ('node', 'e'))}
+    assert m.model_nodes[('b', 'a', ('node', 'e'))].inputs == {'a': ('a', ('node', 'e'))}
+    assert m.model_nodes[('a', ('node', 'e'))].inputs == {'x': 'e'}
     assert m.compute({"e":5}) == {'e': 5, 'a': 1, 'b': 1, 'c': 1, 'd': 5}
 
 def test_forced_nodes_with_different_values():
