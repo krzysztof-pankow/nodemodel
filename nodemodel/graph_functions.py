@@ -1,9 +1,10 @@
 import networkx as nx
-from typing import List,Dict,Callable,Union
+from typing import List,Dict,Union
 from collections.abc import Hashable
-from .helpers import func_args,custom_tuple_concat
+from .helpers import custom_tuple_concat
+from .node_factory import Node
 
-def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
+def nodes_graph(nodes:Dict[str,Node])->nx.DiGraph:
     """
     Constructs a directed acyclic graph (DAG) representing the relationships between node functions and their dependencies.
 
@@ -16,7 +17,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     an edge is added from `another_node` to the function's node.
 
     Args:
-        nodes (Dict[str, Callable]): 
+        nodes (Dict[str, Node]): 
             A dictionary where keys are the names of the nodes (functions), and values are the functions themselves. 
             Functions may have dependencies on other nodes, based on their input arguments.
     
@@ -32,7 +33,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
 
     edges = []
     for node_name,node in nodes.items():
-        deps = func_args(node)
+        deps = node.inputs
         for dep in deps:
             edges.append((dep,node_name))
         if hasattr(node,"forced_nodes"):
@@ -47,7 +48,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     return g
 
 
-def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
+def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Node])->nx.DiGraph:
     """
     Constructs an extended directed acyclic graph (DAG) to handle conditional functions with 'forced_nodes' attributes.
 
@@ -59,7 +60,7 @@ def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
     Args:
         nodes_graph (nx.DiGraph): 
             The base directed acyclic graph (DAG) representing dependencies between functions.
-        nodes (Dict[str, Callable]): 
+        nodes (Dict[str, Node]): 
             A dictionary where keys are function names and values are the functions themselves. Functions with the 
             'forced_nodes' attribute will trigger additional processing.
 

@@ -2,6 +2,7 @@ from nodemodel.graph_functions import nodes_graph
 from nodemodel.graph_functions import node_ancestors_graph
 from nodemodel.graph_functions import rename_forced_node_descendants
 from nodemodel.graph_functions import model_graph
+from nodemodel.node_factory import node_factory
 import networkx as nx
 
 def test_nodes_graph():
@@ -11,7 +12,8 @@ def test_nodes_graph():
         pass
     def c():
         pass
-    g = nodes_graph(nodes={"a":a,"b":b,"c":c})
+    nodes = node_factory({"a":a,"b":b,"c":c})
+    g = nodes_graph(nodes)
 
     assert set(g.edges()) == {('y', 'a'), ('x', 'b'), ('a', 'b')}
     assert set(g.nodes()) == {'a', 'x', 'b', 'y','c'}
@@ -24,7 +26,8 @@ def test_nodes_graph_with_forced_node_to_node():
     def c(b):
         pass
     c.forced_nodes = {"b":("node","a")}
-    g = nodes_graph(nodes={"a":a,"b":b,"c":c})
+    nodes = node_factory({"a":a,"b":b,"c":c})
+    g = nodes_graph(nodes)
 
     assert set(g.edges()) == {('a', 'b'),('b', 'c'),('a', 'c')}
 
@@ -70,8 +73,9 @@ def test_model_graph():
     def d(c,e):
         pass
     d.forced_nodes = {"a":1}
-    g = nodes_graph(nodes={"a":a,"b":b,"c":c,"d":d})
-    h = model_graph(nodes_graph=g,nodes={"a":a,"b":b,"c":c,"d":d})
+    nodes = node_factory({"a":a,"b":b,"c":c,"d":d})
+    g = nodes_graph(nodes)
+    h = model_graph(nodes_graph=g,nodes=nodes)
 
     assert set(h.edges()) == {(('a', 1), ('b', 'a', 1)),
                             (('b', 'a', 1), ('c', 'a', 1)),
@@ -92,8 +96,9 @@ def test_model_graph_with_forced_node_to_node():
     def d(c):
         pass
     d.forced_nodes = {"a":("node","e")}
-    g = nodes_graph(nodes={"a":a,"b":b,"c":c,"d":d})
-    h = model_graph(nodes_graph=g,nodes={"a":a,"b":b,"c":c,"d":d})
+    nodes = node_factory({"a":a,"b":b,"c":c,"d":d})
+    g = nodes_graph(nodes)
+    h = model_graph(nodes_graph=g,nodes=nodes)
 
     assert set(h.edges()) == {('a', 'b'), ('b', 'c'),
         ('e', ('a', ('node', 'e'))), 

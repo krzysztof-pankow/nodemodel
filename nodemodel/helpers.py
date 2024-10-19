@@ -1,10 +1,11 @@
-from typing import List,Callable,Union,Dict
+from typing import List,Union,Dict
 from collections.abc import Hashable
+from types import FunctionType
 import os
 import importlib
 from types import ModuleType
 
-def func_args(f:Callable)->List[str]:
+def func_args(f:FunctionType)->List[str]:
     """Returns a list of the function's argument names."""
     return list(f.__code__.co_varnames[:f.__code__.co_argcount])
 

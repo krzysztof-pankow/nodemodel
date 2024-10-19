@@ -1,11 +1,12 @@
 import nodemodel.model_node as md
 import networkx as nx
+from nodemodel.node_factory import node_factory
 
 def test_model_node_simple():
     def a(x,y):
         pass
     node_name = "a"
-    nodes = {"a":a}
+    nodes = node_factory({"a":a})
     graph = nx.DiGraph()
     graph.add_edges_from([("x","a"),("y","a")])
     model_node = md.model_node_factory(node_name,nodes,graph)
@@ -19,7 +20,7 @@ def test_model_node_with_forced_nodes():
         pass
     a.forced_nodes = {"x":1,"y":2}
     node_name = "a"
-    nodes = {"a":a}
+    nodes = node_factory({"a":a})
     graph = nx.DiGraph()
     graph.add_edges_from([(("x",1),"a"),(("y",2),"a")])
     model_node = md.model_node_factory(node_name,nodes,graph)
@@ -33,7 +34,7 @@ def test_model_node_with_forced_nodes_no_arguments():
         pass
     a.forced_nodes = {"x":1,"y":2}
     node_name = "a"
-    nodes = {"a":a}
+    nodes = node_factory({"a":a})
     graph = nx.DiGraph()
     graph.add_nodes_from(["a"])
     model_node = md.model_node_factory(node_name,nodes,graph)
@@ -67,7 +68,7 @@ def test_model_node_auxiliary():
         pass
     a.forced_nodes = {"x":1,"y":2}
     node_name = ("a","x",1,"y",2)
-    nodes = {"a":a}
+    nodes = node_factory({"a":a})
     graph = nx.DiGraph()
     graph.add_edges_from([(("x",1),("a","x",1,"y",2)),(("y",2),("a","x",1,"y",2))])
     model_node = md.model_node_factory(node_name,nodes,graph)
