@@ -3,7 +3,7 @@ from collections.abc import Hashable
 from .helpers import import_modules_from_dir
 
 
-def node(f:Callable = None,tag:Union[str,List[str]] = None,**forced_nodes:Dict[str,Hashable])->Callable:
+def node(f:Callable = None,cases:List[object] = None,tag:Union[str,List[str]] = None,**forced_nodes:Dict[str,Hashable])->Callable:
     """
     A function decorator that adds a `node_tag` attribute to the decorated function, distinguishing it among other callables.
 
@@ -31,14 +31,14 @@ def node(f:Callable = None,tag:Union[str,List[str]] = None,**forced_nodes:Dict[s
     """
     def decorator(g):
         g.node_tag = tag
+        if cases is not None:
+            g.node_cases = cases
         if len(forced_nodes) > 0:
             g.forced_nodes = forced_nodes
         return g
     
     if callable(f):
         f.node_tag = tag
-        if len(forced_nodes) > 0:
-            f.forced_nodes = forced_nodes
         return f
     else:
         return decorator

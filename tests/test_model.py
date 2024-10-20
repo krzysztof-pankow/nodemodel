@@ -1,4 +1,5 @@
 from nodemodel.model import Model
+from nodemodel.utils import node
 import pytest
 
 def test_model_with_forced_nodes_and_its_properties():
@@ -282,8 +283,6 @@ def test_forced_node_to_descendant_node():
     assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 3}
     assert set(m.auxiliary_nodes) == {('a', ('node', 'b')),('b', 'a', ('node', 'b'))}
 
-#Check if dynamic optimisation can work
-
 def test_forced_node_to_ancestor_and_predecessor_node():
     #node 'a' is both ancestor and predecessor of c
     def c(b,a):
@@ -296,3 +295,59 @@ def test_forced_node_to_ancestor_and_predecessor_node():
     m = Model({"a":a,"b":b,"c":c})
 
     assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 2}
+
+def test_model_with_node_decorator():
+    @node
+    def e(b):
+        return b*5
+    
+    @node(y = 3)
+    def c(b):
+        return b
+
+    @node(x = 2)
+    def b(a,y):
+        return a + y
+
+    @node
+    def a(x):
+        return x
+    
+    nodes = {"a":a,"b":b,"c":c,"e":e}
+    input = {"x":1,"y":1}
+
+    m = Model(nodes)
+    assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
+
+coeff = 1 #needs to be outside of test function
+def test_model_with_node_generators():
+    class A():
+        def __init__(self,v:str,coeff:float):
+            self.a = f"a_{v}"
+            self.y = f"y_{v}"
+            self.coeff = coeff
+
+    class B():
+        def __init__(self,v:str,forced_value:float):
+            self.b = f"b_{v}"
+            self.a = f"a_{v}"
+            self.forced_nodes = {"x":forced_value}
+
+    @node(cases = [A("k",1),A("l",2),A("m",3)])
+    def a(x,y):
+        return (x * coeff) + y
+
+    @node(cases = [B("k",1),B("l",10),B("m",100)])
+    def b(a):
+        return a
+
+    nodes= {"a":a,"b":b}
+    m = Model(nodes)
+
+    assert set(m.inputs) == {'y_m', 'y_k', 'y_l', 'x'}
+    assert list(m.nodes.keys()) == ['a_k', 'a_l', 'a_m', 'b_k', 'b_l', 'b_m']
+    assert m.nodes['b_k'].inputs == {'a': 'a_k'}
+    assert m.model_nodes['b_k'].inputs == {'a': ('a_k', 'x', 1)}
+    assert set(m.auxiliary_nodes) == {('x', 1),('x', 10), ('x', 100), 
+                                    ('a_k', 'x', 1), ('a_l', 'x', 10), ('a_m', 'x', 100)}
+    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
