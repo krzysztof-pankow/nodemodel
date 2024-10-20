@@ -3,6 +3,7 @@ import networkx as nx
 from .graph_functions import nodes_graph,model_graph,graph_subcomponent_nodes,check_acyclicity
 from .node_factory import node_factory
 from .model_node import model_node_factory
+from .helpers import call_inputs
 
 class Model():
     """
@@ -63,8 +64,7 @@ class Model():
         input.update(kwargs)
         for node_name in self.call_order:
             model_node = self.model_nodes[node_name]
-            call_input = {k:input[v] for k,v in model_node.inputs.items()}
-            input[node_name] = model_node.compute(**call_input)
+            input[node_name] = model_node.compute(**call_inputs(input,model_node.inputs))
         if not keep_auxiliary_nodes:
             for auxiliary_node in self.auxiliary_nodes:
                 del input[auxiliary_node]

@@ -17,20 +17,18 @@ def node_factory(function_nodes:Dict[str,Callable])-> Dict[str, Node]:
             nodes.update(generated_nodes)
         else:
             nodes[node_name] = Node(node)
-            if hasattr(node,"forced_nodes"):
-                nodes[node_name].forced_nodes = node.forced_nodes
     return nodes
 
 def generate_nodes(node_name:str,node:Callable)-> Dict[str, Node]:
     nodes = {}
     for node_case in node.node_cases:
-        node_template = node   
-        nodes[getattr(node_case,node_name)] = node_generator(node_template,node_case)
+        nodes[getattr(node_case,node_name)] = node_generator(node,node_case)
     return nodes
 
 def node_generator(node_template:Callable,node_case:object)-> Node:
     node = Node(node_template)
     node.inputs = generate_inputs(node.inputs,node_case)
+    node.compute = generate_compute(node.compute,node_case)
     return node
 
 def generate_inputs(inputs_template:Dict[str,str],node_case:object)->Dict[str,str]:
@@ -39,3 +37,6 @@ def generate_inputs(inputs_template:Dict[str,str],node_case:object)->Dict[str,st
         if hasattr(node_case,k):
             inputs[k] = getattr(node_case,k)
     return inputs
+
+def generate_compute(compute_template:FunctionType,node_case:object)->FunctionType:
+    return compute_template

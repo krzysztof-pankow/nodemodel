@@ -3,15 +3,6 @@ from typing import Dict,Union, Tuple
 from collections.abc import Hashable
 from .node_factory import Node
 
-class ModelNodeSimple(Node):
-    """
-    A simple node without 'forced_nodes' attribute.
-    Example: node_name = 'a'
-    """
-    def __init__(self,node_name:str,nodes:Dict[str,Node]):
-        self.compute = nodes[node_name].compute
-        self.inputs = nodes[node_name].inputs
-
 class ModelNodeWithForcedNodes(Node):
     """
     A node with the 'forced_nodes' attribute.
@@ -74,10 +65,10 @@ def model_node_factory(node_name:Union[str, Tuple],nodes:Dict[str,Node],graph:nx
         - `compute`: A method used to perform computations at the node.
         - `inputs`: The inputs required for the node's computation.
     """
-    if node_name in nodes.keys() and hasattr(nodes[node_name],"forced_nodes"):
+    if node_name in nodes.keys() and hasattr(nodes[node_name].compute,"forced_nodes"):
         return ModelNodeWithForcedNodes(node_name,nodes,graph)
     elif isinstance(node_name,str):
-        return ModelNodeSimple(node_name,nodes)
+        return nodes[node_name]
     elif isinstance(node_name,tuple) and len(node_name) == 2:
         forced_node_value =  node_name[1]
         if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":

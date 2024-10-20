@@ -11,7 +11,6 @@ def test_model_node_simple():
     graph.add_edges_from([("x","a"),("y","a")])
     model_node = md.model_node_factory(node_name,nodes,graph)
     
-    assert isinstance(model_node,md.ModelNodeSimple)
     assert model_node.compute == a
     assert model_node.inputs == {'x': 'x', 'y': 'y'}
 

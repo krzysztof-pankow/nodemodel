@@ -36,8 +36,8 @@ def nodes_graph(nodes:Dict[str,Node])->nx.DiGraph:
         deps = node.inputs.values()
         for dep in deps:
             edges.append((dep,node_name))
-        if hasattr(node,"forced_nodes"):
-            for forced_node,forced_node_value in node.forced_nodes.items():
+        if hasattr(node.compute,"forced_nodes"):
+            for forced_node,forced_node_value in node.compute.forced_nodes.items():
                 #Add an edge ("another_node",node_name) if forced_node_value = ("node","another_node"):
                 if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":
                     edges.append((forced_node_value[1],node_name))
@@ -73,13 +73,13 @@ def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Node])->nx.DiGraph:
     #Get list of nodes which have an attribute 'forced_nodes' -> cond_nodes
     graph = nodes_graph.copy()
     ordered_nodes_names = list(nx.topological_sort(nodes_graph))
-    cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k],"forced_nodes")]
+    cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k].compute,"forced_nodes")]
     #Modify the main graph:
     for cond_node in cond_nodes:
         #Get graph of all ancestors of cond_node in graph + cond_node
         cond_node_ancestors_graph = node_ancestors_graph(graph,cond_node)
         #Sort to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
-        forced_nodes = nodes[cond_node].forced_nodes
+        forced_nodes = nodes[cond_node].compute.forced_nodes
         forced_nodes = dict(sorted(forced_nodes.items()))
         #Modify cond_node_ancestors_graph:
         for forced_node,forced_node_value in forced_nodes.items():

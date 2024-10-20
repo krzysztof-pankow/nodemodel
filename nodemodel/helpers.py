@@ -9,6 +9,9 @@ def func_args(f:FunctionType)->List[str]:
     """Returns a list of the function's argument names."""
     return list(f.__code__.co_varnames[:f.__code__.co_argcount])
 
+def call_inputs(input:Dict,node_inputs:Dict[str,str])-> Dict:
+    return {k:input[v] for k,v in node_inputs.items()}
+
 def custom_tuple_concat(a:Union[Hashable,tuple], b:Union[Hashable,tuple])->tuple:
     """Concatenation that ensures both values are converted to tuples."""
     if not isinstance(a, tuple):
