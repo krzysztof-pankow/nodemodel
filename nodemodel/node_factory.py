@@ -44,6 +44,6 @@ def generate_compute(compute_template:FunctionType,node_case:object)->FunctionTy
     for var in compute_template.__code__.co_names: #global variables of compute_template
         if hasattr(node_case,var):
             compute.__globals__[var] = getattr(node_case,var)
+    if hasattr(node_case,"forced_nodes"):
+        compute.forced_nodes = getattr(node_case,"forced_nodes")
     return compute
-
-

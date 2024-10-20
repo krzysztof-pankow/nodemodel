@@ -5,9 +5,9 @@ def test_func_args():
         return a 
     assert func_args(f) == ["a"]
 
+#needs to be outside of test function
 a = 1
 b = 2
-
 def test_copy_func():
     def f(c):
         return a + b + c
