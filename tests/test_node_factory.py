@@ -1,4 +1,4 @@
-from nodemodel.node_factory import Node,node_factory,node_generator
+from nodemodel.node_factory import Node,node_factory,generate_nodes
 
 def test_node_class():
     def a(b,c,d = 1,*args,**kwargs):
@@ -30,11 +30,12 @@ def test_node_generator():
         def __init__(self,k):
             self.a = f"a_{k}"
             self.b = f"b_{k}"
-    def a(b):
-        return b
+    def a(b,x,y):
+        return b * x + y
     a.node_cases = [A_Factory(1),A_Factory(2),A_Factory(3)]
-
-    nodes = node_generator("a",a)
-
-    assert list(nodes.keys()) == ['a_1', 'a_2', 'a_3']
+    nodes = generate_nodes("a",a)
+    
+    assert nodes['a_1'].inputs == {'b': 'b_1', 'x': 'x', 'y': 'y'}
+    assert nodes['a_2'].inputs == {'b': 'b_2', 'x': 'x', 'y': 'y'}
+    assert nodes['a_3'].inputs == {'b': 'b_3', 'x': 'x', 'y': 'y'}
 

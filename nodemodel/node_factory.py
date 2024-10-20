@@ -12,22 +12,30 @@ class Node():
 def node_factory(function_nodes:Dict[str,Callable])-> Dict[str, Node]:
     nodes = {}
     for node_name,node in function_nodes.items():
-        nodes.update(node_generator(node_name,node))
+        if hasattr(node,"node_cases"):
+            generated_nodes = generate_nodes(node_name,node)
+            nodes.update(generated_nodes)
+        else:
+            nodes[node_name] = Node(node)
+            if hasattr(node,"forced_nodes"):
+                nodes[node_name].forced_nodes = node.forced_nodes
     return nodes
 
-def node_generator(node_name:str,node:Callable)-> Dict[str, Node]:
+def generate_nodes(node_name:str,node:Callable)-> Dict[str, Node]:
     nodes = {}
-    if hasattr(node,"node_cases"):
-        node_template = Node(node)
-        for node_case in node.node_cases:
-            new_node = Node(node)
-            new_node_name = getattr(node_case,node_name)
-            #TO DO: Change nodes names
-            nodes[new_node_name] = new_node
-    else:
-        nodes[node_name] = Node(node)
-        if hasattr(node,"forced_nodes"):
-            nodes[node_name].forced_nodes = node.forced_nodes
+    for node_case in node.node_cases:
+        node_template = node   
+        nodes[getattr(node_case,node_name)] = node_generator(node_template,node_case)
     return nodes
 
+def node_generator(node_template:Callable,node_case:object)-> Node:
+    node = Node(node_template)
+    node.inputs = generate_inputs(node.inputs,node_case)
+    return node
 
+def generate_inputs(inputs_template:Dict[str,str],node_case:object)->Dict[str,str]:
+    inputs = inputs_template
+    for k in inputs.keys():
+        if hasattr(node_case,k):
+            inputs[k] = getattr(node_case,k)
+    return inputs
