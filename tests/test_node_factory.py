@@ -49,6 +49,3 @@ def test_node_generator():
     assert nodes['a_x'].compute(**call_inputs(input,nodes['a_x'].inputs)) == 1
     assert nodes['a_y'].compute(**call_inputs(input,nodes['a_y'].inputs)) == 2
     assert nodes['a_z'].compute(**call_inputs(input,nodes['a_z'].inputs)) == 3
-
-    
-

@@ -1,9 +1,10 @@
 from typing import List,Union,Dict
 from collections.abc import Hashable
-from types import FunctionType
+from types import FunctionType,ModuleType
 import os
 import importlib
-from types import ModuleType
+import copy
+import functools
 
 def func_args(f:FunctionType)->List[str]:
     """Returns a list of the function's argument names."""
@@ -11,6 +12,12 @@ def func_args(f:FunctionType)->List[str]:
 
 def call_inputs(input:Dict,node_inputs:Dict[str,str])-> Dict:
     return {k:input[v] for k,v in node_inputs.items()}
+
+def copy_func(f):
+    g = FunctionType(f.__code__,copy.copy(f.__globals__),name = f.__name__,argdefs=f.__defaults__,closure=f.__closure__)
+    g = functools.update_wrapper(g, f)
+    g.__kwdefaults__ = copy.copy(f.__kwdefaults__)
+    return g
 
 def custom_tuple_concat(a:Union[Hashable,tuple], b:Union[Hashable,tuple])->tuple:
     """Concatenation that ensures both values are converted to tuples."""

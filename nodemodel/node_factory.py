@@ -40,3 +40,5 @@ def generate_inputs(inputs_template:Dict[str,str],node_case:object)->Dict[str,st
 
 def generate_compute(compute_template:FunctionType,node_case:object)->FunctionType:
     return compute_template
+
+
