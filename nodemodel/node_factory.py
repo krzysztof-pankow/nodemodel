@@ -1,6 +1,6 @@
 from typing import Dict,List,Callable
 from types import FunctionType
-from .helpers import func_args
+from .helpers import func_args,copy_func
 
 class Node():
     compute:Callable
@@ -39,6 +39,11 @@ def generate_inputs(inputs_template:Dict[str,str],node_case:object)->Dict[str,st
     return inputs
 
 def generate_compute(compute_template:FunctionType,node_case:object)->FunctionType:
-    return compute_template
+    compute = copy_func(compute_template)
+    compute.__name__ = getattr(node_case,compute_template.__name__)
+    for var in compute_template.__code__.co_names: #global variables of compute_template
+        if hasattr(node_case,var):
+            compute.__globals__[var] = getattr(node_case,var)
+    return compute
 
 

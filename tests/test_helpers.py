@@ -26,8 +26,3 @@ def test_copy_func():
     assert g.__globals__["a"] == 100
     assert g.__globals__["b"] == 200
     assert g(0.1) == 300.1
-
-
-#free_vars = f.__code__.co_freevars  # This gives the names of free variables
-
-#test.__code__.co_names #Get variable names in code

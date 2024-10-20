@@ -26,6 +26,7 @@ def test_node_factory():
     assert nodes["b"].inputs == {'y': 'y'}
     assert hasattr(nodes["b"].compute,"forced_nodes")
 
+q = 0.1
 def test_node_generator():
     class A_Factory():
         def __init__(self,k,q):
@@ -34,8 +35,7 @@ def test_node_generator():
             self.q = q
 
     a_cases = [A_Factory("x",1),A_Factory("y",10),A_Factory("z",100)]
-
-    q = 1
+    
     def a(b,c):
         return (b + c)*q
     a.node_cases = a_cases
@@ -46,6 +46,11 @@ def test_node_generator():
     assert nodes['a_x'].inputs == {'b': 'b_x', 'c': 'c'}
     assert nodes['a_y'].inputs == {'b': 'b_y', 'c': 'c'}
     assert nodes['a_z'].inputs == {'b': 'b_z', 'c': 'c'}
+
+    assert nodes['a_x'].compute.__name__ == "a_x"
+    assert nodes['a_y'].compute.__name__ == "a_y"
+    assert nodes['a_z'].compute.__name__ == "a_z"
+
     assert nodes['a_x'].compute(**call_inputs(input,nodes['a_x'].inputs)) == 1
-    assert nodes['a_y'].compute(**call_inputs(input,nodes['a_y'].inputs)) == 2
-    assert nodes['a_z'].compute(**call_inputs(input,nodes['a_z'].inputs)) == 3
+    assert nodes['a_y'].compute(**call_inputs(input,nodes['a_y'].inputs)) == 20
+    assert nodes['a_z'].compute(**call_inputs(input,nodes['a_z'].inputs)) == 300
