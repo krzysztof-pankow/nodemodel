@@ -1,13 +1,13 @@
-from typing import Dict,List,Callable
+from typing import Dict,Callable
 from types import FunctionType
-from .helpers import func_args,copy_func
+from .helpers import callable_args,copy_func
 
 class Node():
     compute:Callable
     inputs: Dict[str,str]
-    def __init__(self,node:FunctionType):
+    def __init__(self,node:Callable):
         self.compute = node
-        self.inputs = {k:k for k in func_args(node)}
+        self.inputs = {k:k for k in callable_args(node)}
 
 def node_factory(function_nodes:Dict[str,Callable])-> Dict[str, Node]:
     nodes = {}

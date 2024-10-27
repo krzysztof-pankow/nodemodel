@@ -1,14 +1,23 @@
-from typing import List,Union,Dict
+from typing import List,Union,Dict,Callable
 from collections.abc import Hashable
-from types import FunctionType,ModuleType
+from types import FunctionType,ModuleType,MethodType
 import os
 import importlib
 import copy
 import functools
 
-def func_args(f:FunctionType)->List[str]:
+
+def func_args(f:Union[FunctionType,MethodType])->List[str]:
     """Returns a list of the function's argument names."""
     return list(f.__code__.co_varnames[:f.__code__.co_argcount])
+
+def callable_args(obj:Callable)->List[str]:
+    """Returns a list of the callable object argument names exluding 'self' argument."""
+    if isinstance(obj,FunctionType):
+        return func_args(obj)
+    else:
+        args = func_args(obj.__call__)
+        return [arg for arg in args if arg != "self"]
 
 def call_inputs(input:Dict,node_inputs:Dict[str,str])-> Dict:
     return {k:input[v] for k,v in node_inputs.items()}

@@ -1,9 +1,22 @@
-from nodemodel.helpers import func_args,copy_func
+from nodemodel.helpers import func_args,callable_args,copy_func
+
 
 def test_func_args():
     def f(a,*args,**kwargs):
-        return a 
+        return a
     assert func_args(f) == ["a"]
+
+def test_callable_args():
+    def f(a,*args,**kwargs):
+        return a
+    class F_Class():
+        def __call__(self,a,b,*args,**kwargs):
+            return a + b
+    f_object = F_Class()
+    
+    assert callable_args(f) == ["a"]
+    assert callable_args(f_object) == ["a","b"]
+    
 
 #needs to be outside of test function
 a = 1
