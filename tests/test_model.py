@@ -2,6 +2,7 @@ from nodemodel.model import Model
 from nodemodel.utils import node
 import pytest
 
+
 def test_model_with_forced_nodes_and_its_properties():
     def e(b):
         return b*5
@@ -319,29 +320,24 @@ def test_model_with_node_decorator():
     m = Model(nodes)
     assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
 
-coeff = 1 #needs to be outside of test function
-def test_model_with_node_generators():
+def test_model_with_callables():
     class A():
         def __init__(self,v:str,coeff:float):
-            self.a = f"a_{v}"
-            self.y = f"y_{v}"
+            self.inputs = {"y":f"y_{v}"}
             self.coeff = coeff
+
+        def __call__(self,x,y):
+            return (x * self.coeff) + y
 
     class B():
         def __init__(self,v:str,forced_value:float):
-            self.b = f"b_{v}"
-            self.a = f"a_{v}"
+            self.inputs = {"a":f"a_{v}"}
             self.forced_nodes = {"x":forced_value}
+            
+        def __call__(self,a):
+            return a
 
-    @node(cases = [A("k",1),A("l",2),A("m",3)])
-    def a(x,y):
-        return (x * coeff) + y
-
-    @node(cases = [B("k",1),B("l",10),B("m",100)])
-    def b(a):
-        return a
-
-    nodes= {"a":a,"b":b}
+    nodes= {'a_k':A("k",1), 'a_l':A("l",2), 'a_m':A("m",3), 'b_k':B("k",1), 'b_l':B("l",10), 'b_m':B("m",100)}
     m = Model(nodes)
 
     assert set(m.inputs) == {'y_m', 'y_k', 'y_l', 'x'}
@@ -350,4 +346,6 @@ def test_model_with_node_generators():
     assert m.model_nodes['b_k'].inputs == {'a': ('a_k', 'x', 1)}
     assert set(m.auxiliary_nodes) == {('x', 1),('x', 10), ('x', 100), 
                                     ('a_k', 'x', 1), ('a_l', 'x', 10), ('a_m', 'x', 100)}
-    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
+    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
+                                                                   'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
+                                                                   'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}

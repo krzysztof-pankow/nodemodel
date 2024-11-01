@@ -2,7 +2,8 @@ import networkx as nx
 from typing import List,Dict,Union
 from collections.abc import Hashable
 from .helpers import custom_tuple_concat
-from .node_factory import Node
+from .node import Node
+
 
 def nodes_graph(nodes:Dict[str,Node])->nx.DiGraph:
     """
@@ -148,4 +149,3 @@ def check_acyclicity(graph:nx.DiGraph)->None:
         cycles = nx.simple_cycles(graph)
         smallest_cycle = min(cycles,key = len)
         raise ValueError(f"A cycle was detected: {smallest_cycle}")
-

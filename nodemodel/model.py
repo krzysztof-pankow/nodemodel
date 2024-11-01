@@ -1,9 +1,9 @@
 from typing import Dict,List,Callable,Union
 import networkx as nx
-from .graph_functions import nodes_graph,model_graph,graph_subcomponent_nodes,check_acyclicity
-from .node_factory import node_factory
-from .model_node import model_node_factory
+from .graph_functions import nodes_graph,model_graph
+from .node import Node,node_factory
 from .helpers import call_inputs
+
 
 class Model():
     """
@@ -38,13 +38,12 @@ class Model():
                 A dictionary where the keys are the names of the nodes (functions), and the values are the function objects.
                 The functions can have dependencies on other nodes, with their arguments corresponding to the outputs of other nodes.
         """
-        self.function_nodes = nodes
-        self.nodes = node_factory(self.function_nodes)
+        self.nodes = {node_name:Node(node) for node_name,node in nodes.items()}
         self.nodes_graph = nodes_graph(self.nodes)
         self.graph = model_graph(self.nodes_graph,self.nodes)
         self.inputs = list(set(self.nodes_graph.nodes()).difference(self.nodes.keys()))
         self.call_order = [node for node in list(nx.topological_sort(self.graph)) if node not in self.inputs]
-        self.model_nodes = {node_name:model_node_factory(node_name,self.nodes,self.graph) for node_name in self.call_order}
+        self.model_nodes = {node_name:node_factory(node_name,self.nodes,self.graph) for node_name in self.call_order}
         self.auxiliary_nodes = list(set(self.graph.nodes()).difference(self.nodes_graph.nodes()))
 
     def compute(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:
@@ -87,10 +86,6 @@ class Model():
         for node_name in nodes_names:
             subcomponent_nodes_names.update(nx.ancestors(self.nodes_graph, node_name))
         subcomponent_nodes_names.update(nodes_names)
-        submodel_nodes = {node_name:node for node_name,node in self.function_nodes.items() if node_name in subcomponent_nodes_names}
+        submodel_nodes = {node_name:node.compute for node_name,node in self.nodes.items() if node_name in subcomponent_nodes_names}
         submodel = Model(submodel_nodes)
         return submodel
-    
-
-
-

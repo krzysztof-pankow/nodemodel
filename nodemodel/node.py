@@ -1,7 +1,15 @@
 import networkx as nx
-from typing import Dict,Union, Tuple
+from typing import Dict,Union,Tuple,Callable
 from collections.abc import Hashable
-from .node_factory import Node
+from .helpers import callable_args
+
+
+class Node():
+    def __init__(self,node:Callable):
+        self.compute = node
+        self.inputs = {k:k for k in callable_args(node)}
+        if hasattr(node,"inputs"):
+            self.inputs.update(node.inputs)
 
 class NodeForcedToValue(Node):
     """
@@ -37,7 +45,7 @@ class NodeWithForcedNodes(Node):
         self.inputs = {k:inputs_mapping[v] for k,v in origin_node.inputs.items()}
 
 
-def model_node_factory(node_name:Union[str, Tuple],nodes:Dict[str,Node],graph:nx.DiGraph):
+def node_factory(node_name:Union[str, Tuple],nodes:Dict[str,Node],graph:nx.DiGraph):
     """
     A factory function that selects the appropriate `Node` class based on the given `node_name`.
 
