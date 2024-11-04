@@ -99,4 +99,50 @@ for config in b_config:
     assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
                                                                    'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
                                                                    'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
-    
+
+def test_load_callable_nodes_from_dictionary(tmp_path):
+    node_1_code = '''from nodemodel import node
+
+class A():
+    def __init__(self,v:str,coeff:float):
+        self.name = f"a_{v}"
+        self.y = f"y_{v}"
+        self.inputs = {"y":self.y}
+        self.coeff = coeff
+
+    def __call__(self,x,y):
+        return (x * self.coeff) + y
+
+class B():
+    def __init__(self,v:str,forced_value:float):
+        self.name = f"b_{v}"
+        self.a = f"a_{v}"
+        self.inputs = {"a":self.a}
+        self.forced_nodes = {"x":forced_value}
+        
+    def __call__(self,a):
+        return a
+
+a_b_nodes = {}
+a_b_nodes['A'] = {}
+a_b_nodes['B'] = {}
+
+a_config = [{"v":"k","coeff":1},{"v":"l","coeff":2},{"v":"m","coeff":3}]
+b_config = [{"v":"k","forced_value":1},{"v":"l","forced_value":10},{"v":"m","forced_value":100}]
+
+for config in a_config:
+    a_b_nodes['A'][A(**config).name] = node(A(**config))
+
+for config in b_config:
+    a_b_nodes['B'][B(**config).name] = node(B(**config))
+'''
+
+
+    node_2_code = ''''''
+
+    create_folder_structure(tmp_path,node_1_code,node_2_code)
+    nodes = load_nodes(tmp_path)
+    m = Model(nodes)
+    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
+                                                                   'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
+                                                                   'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}

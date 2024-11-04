@@ -1,6 +1,6 @@
 from typing import List,Dict,Callable,Union
 from collections.abc import Hashable
-from .helpers import import_modules_from_dir
+from .helpers import import_modules_from_dir,flatten_dict_with_condition
 
 
 def node(f:Callable = None,tag:Union[str,List[str]] = None,**forced_nodes:Dict[str,Hashable])->Callable:
@@ -57,5 +57,6 @@ def load_nodes(module_dir:str)-> Dict[str,Callable]:
                              and its submodules.
     """
     imported_dict = import_modules_from_dir(module_dir)
-    nodes = {k:v for k,v in imported_dict.items() if hasattr(v,"node_tag") and callable(v)}
+    nodes = flatten_dict_with_condition(imported_dict,lambda x: hasattr(x,"node_tag") and callable(x))
     return nodes
+

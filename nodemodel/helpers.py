@@ -46,3 +46,13 @@ def import_module(module_name:str, module_path:str)-> ModuleType:
     module = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(module)
     return module
+
+def flatten_dict_with_condition(d:Dict,f_cond:Callable)->Dict:
+    flat_dict = {}
+    for key, value in d.items():
+        if isinstance(value, dict):
+            flat_dict.update(flatten_dict_with_condition(value,f_cond))
+        else:
+            if f_cond(value):
+                flat_dict[key] = value
+    return flat_dict
