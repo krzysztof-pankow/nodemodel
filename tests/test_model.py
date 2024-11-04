@@ -1,6 +1,7 @@
 from nodemodel.model import Model
 from nodemodel.utils import node
 import pytest
+from typing import List
 
 
 def test_model_with_forced_nodes_and_its_properties():
@@ -323,7 +324,9 @@ def test_model_with_node_decorator():
 def test_model_with_callables():
     class A():
         def __init__(self,v:str,coeff:float):
-            self.inputs = {"y":f"y_{v}"}
+            self.name = f"a_{v}"
+            self.y = f"y_{v}"
+            self.inputs = {"y":self.y}
             self.coeff = coeff
 
         def __call__(self,x,y):
@@ -331,13 +334,25 @@ def test_model_with_callables():
 
     class B():
         def __init__(self,v:str,forced_value:float):
-            self.inputs = {"a":f"a_{v}"}
+            self.name = f"b_{v}"
+            self.a = f"a_{v}"
+            self.inputs = {"a":self.a}
             self.forced_nodes = {"x":forced_value}
             
         def __call__(self,a):
             return a
+    
+    a_config = [{"v":"k","coeff":1},{"v":"l","coeff":2},{"v":"m","coeff":3}]
+    b_config = [{"v":"k","forced_value":1},{"v":"l","forced_value":10},{"v":"m","forced_value":100}]
 
-    nodes= {'a_k':A("k",1), 'a_l':A("l",2), 'a_m':A("m",3), 'b_k':B("k",1), 'b_l':B("l",10), 'b_m':B("m",100)}
+    nodes = {}
+    for config in a_config:
+        node = A(**config)
+        nodes[node.name] = node
+    for config in b_config:
+        node = B(**config)
+        nodes[node.name] = node
+
     m = Model(nodes)
 
     assert set(m.inputs) == {'y_m', 'y_k', 'y_l', 'x'}
@@ -349,3 +364,55 @@ def test_model_with_callables():
     assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
                                                                    'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
                                                                    'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
+    
+def test_model_with_callables_and_varying_nb_arguments():
+    class A():
+        def __init__(self,v:str,coeffs:List[str]):
+            self.name = f"a_{v}"
+            self.y = f"y_{v}"
+            self.inputs = {"y":self.y}
+            for coeff in coeffs:
+                self.inputs[coeff] = coeff
+            
+        def __call__(self,x,y,**coeffs):
+            output = y
+            for coeff in coeffs.values():
+                output = output + coeff
+            output = output * x
+            return output
+        
+    class B():
+        def __init__(self,v:str,forced_value:float):
+            self.name = f"b_{v}"
+            self.a = f"a_{v}"
+            self.inputs = {"a":self.a}
+            self.forced_nodes = {"x":forced_value}
+            
+        def __call__(self,a):
+            return a
+        
+
+    a_config = [{"v":"k","coeffs":["q"]},{"v":"l","coeffs":["q","s"]},{"v":"m","coeffs":["q","s","d"]}]
+    b_config = [{"v":"k","forced_value":1},{"v":"l","forced_value":10},{"v":"m","forced_value":100}]
+
+    nodes = {}
+    for config in a_config:
+        node = A(**config)
+        nodes[node.name] = node
+    for config in b_config:
+        node = B(**config)
+        nodes[node.name] = node
+    m = Model(nodes)
+
+    assert set(m.inputs) == {'y_m', 'y_k', 'y_l', 'q','s','d','x'}
+    assert list(m.nodes.keys()) == ['a_k', 'a_l', 'a_m', 'b_k', 'b_l', 'b_m']
+    assert m.nodes['a_m'].inputs == {'x': 'x', 'y': 'y_m', 'q': 'q', 's': 's', 'd': 'd'}
+    assert m.model_nodes['a_m'].inputs == m.nodes['a_m'].inputs
+    assert m.nodes['b_k'].inputs == {'a': 'a_k'}
+    assert m.model_nodes['b_k'].inputs == {'a': ('a_k', 'x', 1)}
+    assert set(m.auxiliary_nodes) == {('x', 1),('x', 10), ('x', 100), 
+                                    ('a_k', 'x', 1), ('a_l', 'x', 10), ('a_m', 'x', 100)}
+    assert m.compute({"x":1000,"y_k":0,"y_l":10,"y_m":100,"q":1,"s":2,"d":3}) == {'x': 1000, 'y_k': 0, 'y_l': 10, 'y_m': 100, 
+                                                                                  'q': 1, 's': 2, 'd': 3, 
+                                    'a_k': 1000, 'a_l': 13000, 'a_m': 106000, 'b_k': 1, 'b_l': 130, 'b_m': 10600}
+    

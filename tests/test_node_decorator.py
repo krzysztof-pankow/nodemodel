@@ -52,3 +52,22 @@ def test_node_decorator_with_tag_argument_and_forced_nodes():
     assert test.node_tag == "my_tag"
     assert hasattr(test,"forced_nodes")
     assert test.forced_nodes == {'a':5,'b':"c"}
+
+def test_node_decorator_on_callable_objects():
+    class A():
+        def __init__(self,v:str,coeff:float):
+            self.name = f"a_{v}"
+            self.y = f"y_{v}"
+            self.inputs = {"y":self.y}
+            self.coeff = coeff
+
+        def __call__(self,x,y):
+            return (x * self.coeff) + y
+        
+    obj = A(**{"v":"k","coeff":1})
+    obj = node(obj)
+
+    assert hasattr(obj,"node_tag")
+    assert hasattr(obj,"inputs")
+    assert obj(2,3) == 5
+    
