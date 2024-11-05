@@ -1,5 +1,5 @@
 from nodemodel.utils import node
-from nodemodel.model import Model
+
 
 def test_node_decorator_without_brackets():
     @node
@@ -38,6 +38,7 @@ def test_node_decorator_with_tag_argument():
     assert test.node_tag == "my_tag"
     assert not hasattr(test,"forced_nodes")
 
+
 def test_node_decorator_with_tag_argument_and_forced_nodes():
     @node(tag = "my_tag",a = 5,b = "c")
     def test():
@@ -52,25 +53,21 @@ def test_node_decorator_with_tag_argument_and_forced_nodes():
     assert hasattr(test,"forced_nodes")
     assert test.forced_nodes == {'a':5,'b':"c"}
 
-def test_node_decorator_with_model():
-    @node
-    def e(b):
-        return b*5
+def test_node_decorator_on_callable_objects():
+    class A():
+        def __init__(self,v:str,coeff:float):
+            self.name = f"a_{v}"
+            self.y = f"y_{v}"
+            self.inputs = {"y":self.y}
+            self.coeff = coeff
+
+        def __call__(self,x,y):
+            return (x * self.coeff) + y
+        
+    obj = A(**{"v":"k","coeff":1})
+    obj = node(obj)
+
+    assert hasattr(obj,"node_tag")
+    assert hasattr(obj,"inputs")
+    assert obj(2,3) == 5
     
-    @node(y = 3)
-    def c(b):
-        return b
-
-    @node(x = 2)
-    def b(a,y):
-        return a + y
-
-    @node
-    def a(x):
-        return x
-    
-    nodes = {"a":a,"b":b,"c":c,"e":e}
-    input = {"x":1,"y":1}
-
-    m = Model(nodes)
-    assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}

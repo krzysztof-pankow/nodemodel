@@ -1,9 +1,11 @@
 import networkx as nx
-from typing import List,Dict,Callable,Union
+from typing import List,Dict,Union
 from collections.abc import Hashable
-from .helpers import func_args,custom_tuple_concat
+from .helpers import custom_tuple_concat
+from .node import Node
 
-def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
+
+def nodes_graph(nodes:Dict[str,Node])->nx.DiGraph:
     """
     Constructs a directed acyclic graph (DAG) representing the relationships between node functions and their dependencies.
 
@@ -16,7 +18,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     an edge is added from `another_node` to the function's node.
 
     Args:
-        nodes (Dict[str, Callable]): 
+        nodes (Dict[str, Node]): 
             A dictionary where keys are the names of the nodes (functions), and values are the functions themselves. 
             Functions may have dependencies on other nodes, based on their input arguments.
     
@@ -32,11 +34,11 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
 
     edges = []
     for node_name,node in nodes.items():
-        deps = func_args(node)
+        deps = node.inputs.values()
         for dep in deps:
             edges.append((dep,node_name))
-        if hasattr(node,"forced_nodes"):
-            for forced_node,forced_node_value in node.forced_nodes.items():
+        if hasattr(node.compute,"forced_nodes"):
+            for forced_node,forced_node_value in node.compute.forced_nodes.items():
                 #Add an edge ("another_node",node_name) if forced_node_value = ("node","another_node"):
                 if isinstance(forced_node_value,tuple) and len(forced_node_value) == 2 and forced_node_value[0] == "node":
                     edges.append((forced_node_value[1],node_name))
@@ -47,7 +49,7 @@ def nodes_graph(nodes:Dict[str,Callable])->nx.DiGraph:
     return g
 
 
-def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
+def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Node])->nx.DiGraph:
     """
     Constructs an extended directed acyclic graph (DAG) to handle conditional functions with 'forced_nodes' attributes.
 
@@ -59,7 +61,7 @@ def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
     Args:
         nodes_graph (nx.DiGraph): 
             The base directed acyclic graph (DAG) representing dependencies between functions.
-        nodes (Dict[str, Callable]): 
+        nodes (Dict[str, Node]): 
             A dictionary where keys are function names and values are the functions themselves. Functions with the 
             'forced_nodes' attribute will trigger additional processing.
 
@@ -72,13 +74,13 @@ def model_graph(nodes_graph:nx.DiGraph,nodes:Dict[str,Callable])->nx.DiGraph:
     #Get list of nodes which have an attribute 'forced_nodes' -> cond_nodes
     graph = nodes_graph.copy()
     ordered_nodes_names = list(nx.topological_sort(nodes_graph))
-    cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k],"forced_nodes")]
+    cond_nodes = [k for k in ordered_nodes_names if k in nodes.keys() and hasattr(nodes[k].compute,"forced_nodes")]
     #Modify the main graph:
     for cond_node in cond_nodes:
         #Get graph of all ancestors of cond_node in graph + cond_node
         cond_node_ancestors_graph = node_ancestors_graph(graph,cond_node)
         #Sort to mutualize forced values like {"a":1,"b":2} and {"b":2,"a":1}
-        forced_nodes = nodes[cond_node].forced_nodes
+        forced_nodes = nodes[cond_node].compute.forced_nodes
         forced_nodes = dict(sorted(forced_nodes.items()))
         #Modify cond_node_ancestors_graph:
         for forced_node,forced_node_value in forced_nodes.items():
@@ -147,4 +149,3 @@ def check_acyclicity(graph:nx.DiGraph)->None:
         cycles = nx.simple_cycles(graph)
         smallest_cycle = min(cycles,key = len)
         raise ValueError(f"A cycle was detected: {smallest_cycle}")
-

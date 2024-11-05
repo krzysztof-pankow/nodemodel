@@ -139,6 +139,35 @@ Now we can load and execute these functions using the `nodemodel` package:
    result = m.compute({"x": 1, "y": 2})
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
+Example: Callable objects
+------------------------------------
+Callable objects can be used in place of functions as nodes within the model:
+
+.. code-block:: python
+
+    class W:
+        def __init__(self, k):
+            # Define input mapping so `x` is taken from `x_k` in the input dictionary
+            self.inputs = {"x": f"x_{k}"}
+
+        def __call__(self, x):
+            return x
+
+    # Initialize the model with instances of `W` as nodes
+    m = Model({"a": W(1), "b": W(2), "c": W(3)})
+
+    # Compute with inputs mapped accordingly
+    print(m.compute({"x_1": 6, "x_2": 7, "x_3": 8}))
+    # Output: {'x_1': 6, 'x_2': 7, 'x_3': 8, 'a': 6, 'b': 7, 'c': 8}
+
+In this example, instances of the class `W` act as callable nodes in the model. Each `W` instance has an `inputs` 
+attribute that specifies a mapping for the argument `x`. For instance, the node `"a"` maps `x` to `x_1`, node `"b"` 
+maps `x` to `x_2`, and node `"c"` maps `x` to `x_3`. During computation, `Model.compute` uses this mapping to link 
+input values correctly, allowing each node to retrieve its input from the appropriate key in the input dictionary.
+
+This approach enables flexibility, as users can pass callable objects with custom input mappings rather than 
+requiring each node to have an exact name match with its inputs.
+
 Example: Using nodemodel with Pandas
 ------------------------------------
 
