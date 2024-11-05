@@ -4,37 +4,70 @@ from collections.abc import Hashable
 from .helpers import callable_args
 
 
-class Node():
+class Node:
+    """Represents a computation node in a graph.
+
+    This class wraps a callable and tracks its inputs, which are 
+    the arguments of the callable. The inputs can be extended by 
+    the 'inputs' attribute of the callable if it exists.
+
+    Args:
+        node (Callable): The callable object that represents the node's computation.
+    """
     def __init__(self,node:Callable):
         self.compute = node
         self.inputs = {k:k for k in callable_args(node)}
         if hasattr(node,"inputs"):
             self.inputs.update(node.inputs)
 
-class NodeForcedToValue(Node):
-    """
-    A node forced to a hashable value.
-    Example: node_name = ('a',5)
+class NodeForcedToValue:
+    """A node that returns a fixed hashable value.
+
+    This node is initialized with a hashable value and will always 
+    return this value when computed.
+
+    Example:
+        node_name = ('a', 5)  # This node will always return 5.
+    
+    Args:
+        forced_node_value (Hashable): The value that the node is forced to return.
     """
     def __init__(self,forced_node_value:Hashable):
         self.compute = lambda x = forced_node_value: x
         self.inputs = {}
 
-class NodeForcedToNode(Node):
-    """
-    A node forced to another node.
-    Example: node_name = ('a',('node','b'))
+class NodeForcedToNode:
+    """A node that returns the output of another node.
+
+    This node is initialized with a tuple specifying another node 
+    and will return its input when computed.
+
+    Example:
+        node_name = ('a', ('node', 'b'))  # This node will return the output of node 'b'.
+    
+    Args:
+        forced_node_value (Hashable): A tuple where the second element is the name of the node to return.
     """
     def __init__(self,forced_node_value:Hashable):
             self.compute = lambda x : x
             self.inputs = {"x":forced_node_value[1]}
 
-class NodeWithForcedNodes(Node):
-    """
-    Either a node with the 'forced_nodes' attribute or a 
-    node that is an ancestor of a node with the 'forced_nodes' attribute and also a successor of the nodes in its 'forced_nodes'.
-    Example: node_name = 'a' and a.forced_nodes = {"x":1}
-    Example: node_name = ('c','x',1)
+class NodeWithForcedNodes:
+    """A node that may have forced nodes as inputs.
+
+    This node can either have a `forced_nodes` attribute or be 
+    connected to other nodes that have this attribute. It requires 
+    the inputs to be derived from the predecessors in the computation 
+    graph.
+
+    Example:
+        node_name = 'a' and a.forced_nodes = {"x": 1}
+        node_name = ('c', 'x', 1)
+    
+    Args:
+        node_name (Union[str, Tuple]): The name of the node, which may be a string or a tuple.
+        nodes (Dict[str, Node]): A dictionary mapping node names to Node instances.
+        graph (nx.DiGraph): A directed graph representing the structure of the computation model.
     """
     def __init__(self,node_name:Union[str, Tuple],nodes:Dict[str,Node],graph:nx.DiGraph):
         origin_node_name = node_name if isinstance(node_name,str) else node_name[0]

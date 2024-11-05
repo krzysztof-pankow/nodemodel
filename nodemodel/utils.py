@@ -41,20 +41,47 @@ def node(f:Callable = None,tag:Union[str,List[str]] = None,**forced_nodes:Dict[s
     else:
         return decorator
 
-def load_nodes(module_dir:str)-> Dict[str,Callable]:
-    """
-    Recursively imports all functions from a module and its submodules that have a `node_tag` attribute into a dictionary.
 
-    Functions can have the `node_tag` attribute either by explicitly setting it after the function definition,
-    or implicitly by using the `@node` decorator.
+def load_nodes(module_dir: str) -> Dict[str, Callable]:
+    """
+    Recursively imports all callable objects from a specified module directory and its submodules 
+    that have a `node_tag` attribute, returning them in a dictionary.
+
+    This function searches through all Python files in the specified directory, including 
+    subdirectories, to locate callable objects that are marked with a `node_tag` attribute. 
+    A callable can acquire the `node_tag` attribute either explicitly by setting it after 
+    the definition or implicitly through a `@node` decorator. Additionally, the function 
+    detects callables that are stored as elements within dictionaries in each module.
 
     Args:
-        module_dir (str): The directory path of the root module to search for functions with a `node_tag` attribute.
+        module_dir (str): The root directory path to search for modules and callables 
+            with a `node_tag` attribute.
 
     Returns:
-        Dict[str, Callable]: A dictionary where the keys are the names of the functions and the values are the 
-                             corresponding callable functions that have been imported from the specified module 
-                             and its submodules.
+        Dict[str,Callable]: A dictionary where each key is the name of a callable 
+        with a `node_tag` attribute, and each value is the corresponding callable 
+        object imported from the specified directory and its submodules.
+
+    Raises:
+        FileNotFoundError: If the specified module directory does not exist.
+        ImportError: If there is an error while importing any modules, such as 
+            syntax errors or invalid paths.
+
+    Notes:
+        - This function relies on `import_modules_from_dir` to dynamically load all 
+          modules from the specified directory and `flatten_dict_with_condition` to 
+          filter only the callables with the `node_tag` attribute.
+        - The callable objects may be regular functions, classes with a `__call__` 
+          method, or callable items stored as values within dictionaries in a module.
+        - If multiple callables across modules have the same name, later imports will 
+          overwrite earlier ones in the dictionary.
+        - Circular imports in the specified directory may cause this function to fail 
+          or produce unexpected results.
+
+    Example:
+        >>> # Assuming 'my_module_dir' contains modules with callables tagged by a `@node` decorator
+        >>> nodes = load_nodes('my_module_dir')
+        >>> print(nodes['my_function'])  # Access a specific callable with a node_tag attribute
     """
     imported_dict = import_modules_from_dir(module_dir)
     nodes = flatten_dict_with_condition(imported_dict,lambda x: hasattr(x,"node_tag") and callable(x))
