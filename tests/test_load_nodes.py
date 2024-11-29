@@ -52,7 +52,7 @@ def c(b):
     create_folder_structure(tmp_path,node_1_code,node_2_code)
     nodes = load_nodes(tmp_path)
     m = Model(nodes)
-    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
+    assert m({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
 
 
 def test_load_callable_nodes_from_globals(tmp_path):
@@ -96,7 +96,7 @@ for config in b_config:
     create_folder_structure(tmp_path,node_1_code,node_2_code)
     nodes = load_nodes(tmp_path)
     m = Model(nodes)
-    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
+    assert m({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
                                                                    'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
                                                                    'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
 
@@ -143,6 +143,6 @@ for config in b_config:
     create_folder_structure(tmp_path,node_1_code,node_2_code)
     nodes = load_nodes(tmp_path)
     m = Model(nodes)
-    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
+    assert m({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
                                                                    'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
                                                                    'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}

@@ -20,8 +20,8 @@ def test_submodel():
         return 1
 
     m = Model({"z":z,"y":y,"x":x,"a":a,"b":b,"c":c})
-    assert m.compute({}) == {'b': 1, 'c': 1, 'y': 1, 'a': 1, 'x': 1, 'z': 1}
+    assert m({}) == {'b': 1, 'c': 1, 'y': 1, 'a': 1, 'x': 1, 'z': 1}
     m_sub = m.submodel(["z","y"])
-    assert m_sub.compute({}) == {'b': 1, 'y': 1, 'a': 1, 'z': 1}
+    assert m_sub({}) == {'b': 1, 'y': 1, 'a': 1, 'z': 1}
     m_sub = m.submodel("y")
-    assert m_sub.compute({}) == {'b': 1, 'y': 1}
+    assert m_sub({}) == {'b': 1, 'y': 1}

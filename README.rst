@@ -22,7 +22,7 @@ Nodemodel is a small Python package for generating and computing a graph based o
 
 Main Features
 -------------
-- **Simple Interface** – Use a single class, ``Model``, to generate a graph of functions, and its method ``compute`` to compute the graph on a dictionary.
+- **Simple Interface** – Use a single class, ``Model``, to generate and compute a graph of functions.
 - **Organizes Your Code** – Add a ``@node`` decorator to your functions and load them with the ``load_nodes`` function for easy management.
 - **Supports Conditional Functions** – Easily specify that the computation of a function depends on modified inputs or the modified results of other functions.
 - **Lightweight** – ``nodemodel`` only depends on the ``networkx`` package; everything else is pure Python.
@@ -52,11 +52,11 @@ Example: Basic
    m = Model({"a": a, "b": b, "c": c, "d": d})
 
    # Compute values for the given inputs
-   result = m.compute({"x": 1, "y": 2})
+   result = m({"x": 1, "y": 2})
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'd': 20, 'c': 5}
 
    # Compute only a part of the model
-   result = m.submodel("d").compute({"x": 1, "y": 2})
+   result = m.submodel("d")({"x": 1, "y": 2})
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'd': 20}
 
 Example: Conditional functions
@@ -74,7 +74,7 @@ Example: Conditional functions
    m = Model({"a": a, "b": b, "c": c,"d": d})
 
    #Compute the model on a dictionary:
-   result = m.compute({"x": 1, "y": 2})
+   result = m({"x": 1, "y": 2})
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
 Please notice that only "c" and "d" values changed after computing the model.
@@ -136,7 +136,7 @@ Now we can load and execute these functions using the `nodemodel` package:
    m = Model(nodes)
 
    #Compute the model on a dictionary:
-   result = m.compute({"x": 1, "y": 2})
+   result = m({"x": 1, "y": 2})
    print(result)  # Output: {'x': 1, 'y': 2, 'a': 2, 'b': 3, 'c': 104, 'd': 30}
 
 Example: Callable objects
@@ -157,7 +157,7 @@ Callable objects can be used in place of functions as nodes within the model:
     m = Model({"a": W(1), "b": W(2), "c": W(3)})
 
     # Compute with inputs mapped accordingly
-    print(m.compute({"x_1": 6, "x_2": 7, "x_3": 8}))
+    print(m({"x_1": 6, "x_2": 7, "x_3": 8}))
     # Output: {'x_1': 6, 'x_2': 7, 'x_3': 8, 'a': 6, 'b': 7, 'c': 8}
 
 In this example, instances of the class `W` act as callable nodes in the model. Each `W` instance has an `inputs` 
@@ -180,7 +180,7 @@ For example, with `pandas` DataFrames:
    df = pd.DataFrame({"x": [1, 2, 3],"y": [2, 3, 4]})
 
    df = df.to_dict(orient="series")
-   result = pd.DataFrame(m.compute(df))
+   result = pd.DataFrame(m(df))
    print(result)
 
       x  y  a  b    c   d

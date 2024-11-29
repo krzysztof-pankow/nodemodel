@@ -36,8 +36,8 @@ def test_model_with_forced_nodes_and_its_properties():
     assert m.model_nodes['b'].inputs == {'y': 'y', 'a': ('a', 'x', 2)}
     assert m.model_nodes['c'].inputs == {'b': ('b', 'y', 3)}
     assert set(m.auxiliary_nodes) == {('b', 'y', 3), ('a', 'x', 2), ('x', 2), ('y', 3)}
-    assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
-    assert m.compute(input,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, ('x', 2): 2, ('y', 3): 3, 'a': 1, ('a', 'x', 2): 2, 
+    assert m(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
+    assert m(input,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, ('x', 2): 2, ('y', 3): 3, 'a': 1, ('a', 'x', 2): 2, 
                                 'b': 3, ('b', 'y', 3): 5, 'e': 15, 'c': 5}
 
 def test_forced_nodes_to_nodes():
@@ -55,7 +55,7 @@ def test_forced_nodes_to_nodes():
     assert m.model_nodes[('c', 'a', ('node', 'e'))].inputs == {'b': ('b', 'a', ('node', 'e'))}
     assert m.model_nodes[('b', 'a', ('node', 'e'))].inputs == {'a': ('a', ('node', 'e'))}
     assert m.model_nodes[('a', ('node', 'e'))].inputs == {'x': 'e'}
-    assert m.compute({"e":5}) == {'e': 5, 'a': 1, 'b': 1, 'c': 1, 'd': 5}
+    assert m({"e":5}) == {'e': 5, 'a': 1, 'b': 1, 'c': 1, 'd': 5}
 
 def test_forced_nodes_with_different_values():
     def c(a):
@@ -78,7 +78,7 @@ def test_forced_nodes_with_different_values():
                             (('x', 7), ('a', 'x', 7)), 
                             (('a', 'x', 5), 'b')}
     assert set(m.auxiliary_nodes) == {('x', 5), ('a', 'x', 7), ('x', 7), ('a', 'x', 5)}
-    assert m.compute(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 7}
+    assert m(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 7}
 
 def test_forced_nodes_to_nodes_with_different_values():
     def c(a):
@@ -95,7 +95,7 @@ def test_forced_nodes_to_nodes_with_different_values():
     inputs = {"x":1,"y":2,"z":3}
 
     m = Model(nodes)
-    assert m.compute(inputs) == {'x': 1, 'y': 2, 'z': 3, 'a': 1, 'b': 2, 'c': 3}
+    assert m(inputs) == {'x': 1, 'y': 2, 'z': 3, 'a': 1, 'b': 2, 'c': 3}
 
 def test_simple_mutualization_of_forced_nodes():
     def c(a):
@@ -113,7 +113,7 @@ def test_simple_mutualization_of_forced_nodes():
 
     m = Model(nodes)
     assert set(m.auxiliary_nodes) == {('x', 5), ('a', 'x', 5)}
-    assert m.compute(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 5}
+    assert m(inputs) == {'x': 1, 'a': 1, 'b': 5, 'c': 5}
 
 def test_simple_mutualization_of_forced_nodes_to_nodes():
     def c(a):
@@ -131,7 +131,7 @@ def test_simple_mutualization_of_forced_nodes_to_nodes():
 
     m = Model(nodes)
     assert set(m.auxiliary_nodes) == {('x', ('node', 'y')), ('a', 'x', ('node', 'y'))}
-    assert m.compute(inputs) == {'x': 1, 'y': 2, 'a': 1, 'b': 2, 'c': 2}
+    assert m(inputs) == {'x': 1, 'y': 2, 'a': 1, 'b': 2, 'c': 2}
 
 def test_irrelevent_forced_nodes():
     def a(x):
@@ -146,7 +146,7 @@ def test_irrelevent_forced_nodes():
 
     m = Model(nodes)
     assert set(m.auxiliary_nodes) == set()
-    assert m.compute(inputs) == {'x': 1, 'a': 1, 'b':1}
+    assert m(inputs) == {'x': 1, 'a': 1, 'b':1}
     
 def test_mutualization_of_forced_nodes():
     def b(a):
@@ -164,8 +164,8 @@ def test_mutualization_of_forced_nodes():
 
     m = Model(nodes)
     assert set(m.auxiliary_nodes) == {('y', 3), ('x', 5), ('a', 'x', 5, 'y', 3)}
-    assert m.compute(inputs) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8}
-    assert m.compute(inputs,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8, 
+    assert m(inputs) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8}
+    assert m(inputs,keep_auxiliary_nodes=True) == {'x': 1, 'y': 1, 'a': 2, 'b': 8, 'c': 8, 
                                                         ('x', 5): 5, ('y', 3): 3, ('a', 'x', 5, 'y', 3): 8}
     
 def test_mutualization_of_forced_nodes_to_nodes():
@@ -186,7 +186,7 @@ def test_mutualization_of_forced_nodes_to_nodes():
     assert set(m.auxiliary_nodes) == {('a', 'x', ('node', 'k'), 'y', ('node', 'l')), 
                                       ('x', ('node', 'k')), 
                                       ('y', ('node', 'l'))}
-    assert m.compute(inputs) == {'x': 1, 'y': 1, 'k': 2, 'l': 3, 'a': 2, 'b': 5, 'c': 5}
+    assert m(inputs) == {'x': 1, 'y': 1, 'k': 2, 'l': 3, 'a': 2, 'b': 5, 'c': 5}
 
 def test_forced_node_which_forces_itself_to_value():
     def a(x):
@@ -195,7 +195,7 @@ def test_forced_node_which_forces_itself_to_value():
 
     m = Model({"a":a})
     #No effect on 'a', forced_nodes works only on ancestors on "a":
-    assert m.compute({"x":1}) == {"x":1,"a":1}
+    assert m({"x":1}) == {"x":1,"a":1}
 
 def test_forced_node_which_forces_itself_to_itself():
     def a(x):
@@ -203,7 +203,7 @@ def test_forced_node_which_forces_itself_to_itself():
     a.forced_nodes = {"a":{"node","a"}}
 
     m = Model({"a":a})
-    assert m.compute({"x":1}) == {"x":1,"a":1}
+    assert m({"x":1}) == {"x":1,"a":1}
 
 def test_model_with_isolated_node():
     def a():
@@ -211,7 +211,7 @@ def test_model_with_isolated_node():
 
     m = Model({"a":a})
     assert list(m.graph.nodes()) == ['a']
-    assert m.compute({}) == {'a':1}
+    assert m({}) == {'a':1}
 
 def test_model_with_cycles_error():
     def a(b):
@@ -244,7 +244,7 @@ def test_compute_with_kwargs():
         return x
     
     m = Model({"a":a})
-    assert m.compute({},x=1) == {"a":1}
+    assert m({},x=1) == {"a":1}
 
 def test_forced_node_to_ancestor_node():
     def c(b):
@@ -261,7 +261,7 @@ def test_forced_node_to_ancestor_node():
     ('a', 'c'),
     (('b', ('node', 'a')), 'c')
     }
-    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 1}
+    assert m({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 1}
     assert m.auxiliary_nodes == [('b', ('node', 'a'))]
 
 def test_forced_node_to_descendant_node():
@@ -282,7 +282,7 @@ def test_forced_node_to_descendant_node():
     ('x', ('b', 'a', ('node', 'b'))),
     (('b', 'a', ('node', 'b')), 'c')
     }
-    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 3}
+    assert m({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 3}
     assert set(m.auxiliary_nodes) == {('a', ('node', 'b')),('b', 'a', ('node', 'b'))}
 
 def test_forced_node_to_ancestor_and_predecessor_node():
@@ -296,7 +296,7 @@ def test_forced_node_to_ancestor_and_predecessor_node():
     c.forced_nodes = {"b":("node","a")}
     m = Model({"a":a,"b":b,"c":c})
 
-    assert m.compute({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 2}
+    assert m({"x":1,"y":1}) == {'x': 1, 'y': 1, 'a': 1, 'b': 2, 'c': 2}
 
 def test_model_with_node_decorator():
     @node
@@ -319,7 +319,7 @@ def test_model_with_node_decorator():
     input = {"x":1,"y":1}
 
     m = Model(nodes)
-    assert m.compute(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
+    assert m(input) == {'x': 1, 'y': 1, 'a': 1, 'b': 3, 'e': 15, 'c': 5}
 
 def test_model_with_callables():
     class A():
@@ -361,7 +361,7 @@ def test_model_with_callables():
     assert m.model_nodes['b_k'].inputs == {'a': ('a_k', 'x', 1)}
     assert set(m.auxiliary_nodes) == {('x', 1),('x', 10), ('x', 100), 
                                     ('a_k', 'x', 1), ('a_l', 'x', 10), ('a_m', 'x', 100)}
-    assert m.compute({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
+    assert m({"x":1000,"y_k":0.1,"y_l":0.2,"y_m":0.3}) == {'x': 1000, 'y_k': 0.1, 'y_l': 0.2, 'y_m': 0.3, 
                                                                    'a_k': 1000.1, 'a_l': 2000.2, 'a_m': 3000.3, 
                                                                    'b_k': 1.1, 'b_l': 20.2, 'b_m': 300.3}
     
@@ -412,7 +412,7 @@ def test_model_with_callables_and_varying_nb_arguments():
     assert m.model_nodes['b_k'].inputs == {'a': ('a_k', 'x', 1)}
     assert set(m.auxiliary_nodes) == {('x', 1),('x', 10), ('x', 100), 
                                     ('a_k', 'x', 1), ('a_l', 'x', 10), ('a_m', 'x', 100)}
-    assert m.compute({"x":1000,"y_k":0,"y_l":10,"y_m":100,"q":1,"s":2,"d":3}) == {'x': 1000, 'y_k': 0, 'y_l': 10, 'y_m': 100, 
+    assert m({"x":1000,"y_k":0,"y_l":10,"y_m":100,"q":1,"s":2,"d":3}) == {'x': 1000, 'y_k': 0, 'y_l': 10, 'y_m': 100, 
                                                                                   'q': 1, 's': 2, 'd': 3, 
                                     'a_k': 1000, 'a_l': 13000, 'a_m': 106000, 'b_k': 1, 'b_l': 130, 'b_m': 10600}
     

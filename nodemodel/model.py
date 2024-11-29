@@ -67,7 +67,7 @@ class Model:
         self.auxiliary_nodes = list(set(self.graph.nodes()).difference(self.nodes_graph.nodes()))
 
 
-    def compute(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:
+    def __call__(self,input:Dict,keep_auxiliary_nodes:bool=False,**kwargs)->Dict:
         """
         Executes the model's computations in topological order, updating the input dictionary with the results.
 
